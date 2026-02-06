@@ -1,1 +1,1 @@
-export { AppFrame } from "./AppFrame";
+// Shared components

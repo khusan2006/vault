@@ -1,0 +1,34 @@
+# This is an example Shopify app configuration file
+# Copy to shopify.app.toml and fill in your app credentials
+
+name = "The Vault"
+client_id = "YOUR_CLIENT_ID"
+application_url = "https://your-app-url.com"
+
+[access_scopes]
+# Add scopes your app needs
+scopes = "read_customers,read_products,read_orders,write_metafields"
+
+[auth]
+redirect_urls = ["https://your-app-url.com/api/auth/callback"]
+
+[webhooks]
+api_version = "2025-01"
+
+[app_proxy]
+url = "https://your-app-url.com/api/proxy"
+subpath = "vault"
+prefix = "apps"
+
+# Navigation links shown in Shopify Admin sidebar under your app
+[[nav_links]]
+label = "Home"
+url = "/"
+
+[[nav_links]]
+label = "Campaigns"
+url = "/campaigns"
+
+[[nav_links]]
+label = "Settings"
+url = "/settings"
