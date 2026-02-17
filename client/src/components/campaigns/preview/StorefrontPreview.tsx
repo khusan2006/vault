@@ -43,7 +43,7 @@ export function StorefrontPreview({
     notification.type === "banner" && notification.visuals.position !== "top";
   const bottomPadding = bannerAtBottom ? (isMobile ? 80 : 64) : 0;
 
-  const theme = (config as any)?.theme;
+  const theme = config.theme;
   const themeVars = tokensToCSS(resolveTokens(theme));
 
   const hasSelectedProducts =
