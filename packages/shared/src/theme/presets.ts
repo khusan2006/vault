@@ -1,4 +1,4 @@
-import type { StyleTokens, ThemePreset } from '../types/display-config.types.js';
+import type { StyleTokens, ThemePreset } from '../types/display-config.types';
 
 export const PRESETS: Record<ThemePreset, StyleTokens> = {
   rounded: {

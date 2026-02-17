@@ -1,2 +1,2 @@
-export { PRESETS } from './presets.js';
-export { resolveTokens, tokensToCSS, defaultTokens } from './tokens.js';
+export { PRESETS } from './presets';
+export { resolveTokens, tokensToCSS, defaultTokens } from './tokens';

@@ -1,5 +1,5 @@
-import type { ThemeConfig, StyleTokens } from '../types/display-config.types.js';
-import { PRESETS } from './presets.js';
+import type { ThemeConfig, StyleTokens } from '../types/display-config.types';
+import { PRESETS } from './presets';
 
 /**
  * Resolves a ThemeConfig into a complete StyleTokens object
