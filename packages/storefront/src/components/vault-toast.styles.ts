@@ -1,0 +1,141 @@
+export default `
+:host {
+  display: block;
+}
+
+.v-toast {
+  position: fixed;
+  bottom: 20px;
+  z-index: 9999;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  background: #fff;
+  border-radius: var(--vault-notif-border-radius, 12px);
+  padding: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border-left: 4px solid var(--vault-primary, #7c3aed);
+  transform: translateY(120%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.v-toast--right {
+  right: 20px;
+}
+
+.v-toast--left {
+  left: 20px;
+}
+
+.v-toast--bottom {
+  bottom: 20px;
+  left: 50%;
+  transform: translate(-50%, 120%);
+}
+
+.v-toast--bottom.v-toast--visible {
+  transform: translate(-50%, 0);
+}
+
+.v-toast--bottom.v-toast--hiding {
+  transform: translate(-50%, 120%);
+}
+
+.v-toast--top {
+  top: 20px;
+  left: 50%;
+  bottom: auto;
+  transform: translate(-50%, -150%);
+}
+
+.v-toast--top.v-toast--visible {
+  transform: translate(-50%, 0);
+}
+
+.v-toast--top.v-toast--hiding {
+  transform: translate(-50%, -150%);
+}
+
+.v-toast--visible {
+  transform: translateY(0);
+}
+
+.v-toast--hiding {
+  transform: translateY(120%);
+}
+
+.v-toast__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.v-toast__close:hover {
+  color: #374151;
+}
+
+.v-toast__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--vault-primary, #7c3aed);
+  color: var(--vault-text, #fff);
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.v-toast__msg {
+  font-size: var(--vault-notif-font-size, 14px);
+  font-weight: 600;
+  color: #18181b;
+  line-height: 1.4;
+  margin: 0 0 12px;
+  padding-right: 20px;
+}
+
+.v-toast__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  background: var(--vault-primary, #7c3aed);
+  color: var(--vault-text, #fff);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: var(--vault-notif-button-radius, 6px);
+  transition: opacity 0.15s;
+}
+
+.v-toast__btn:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 640px) {
+  .v-toast {
+    left: 16px;
+    right: 16px;
+    width: auto;
+    bottom: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v-toast {
+    transition-duration: 0.01ms !important;
+  }
+}
+`;

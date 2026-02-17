@@ -1,0 +1,121 @@
+export default `
+:host {
+  display: block;
+}
+
+.v-badge {
+  position: fixed;
+  bottom: 20px;
+  z-index: 9999;
+}
+
+.v-badge--right {
+  right: 20px;
+}
+
+.v-badge--left {
+  left: 20px;
+}
+
+.v-badge__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--vault-primary, #7c3aed);
+  color: var(--vault-text, #fff);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s, box-shadow 0.2s;
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.v-badge--visible .v-badge__trigger {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.v-badge__trigger:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+}
+
+.v-badge__trigger:focus-visible {
+  outline: 2px solid var(--vault-primary, #7c3aed);
+  outline-offset: 4px;
+}
+
+.v-badge__trigger svg {
+  transition: transform 0.3s;
+}
+
+.v-badge--expanded .v-badge__trigger svg {
+  transform: rotate(72deg);
+}
+
+.v-badge__panel {
+  position: absolute;
+  bottom: 64px;
+  width: 280px;
+  background: #fff;
+  border-radius: var(--vault-notif-border-radius, 12px);
+  padding: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e5e7eb;
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+  transition: opacity 0.25s, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.v-badge--right .v-badge__panel {
+  right: 0;
+}
+
+.v-badge--left .v-badge__panel {
+  left: 0;
+}
+
+.v-badge--expanded .v-badge__panel {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.v-badge__msg {
+  font-size: var(--vault-notif-font-size, 14px);
+  font-weight: 600;
+  color: #18181b;
+  line-height: 1.4;
+  margin: 0 0 12px;
+}
+
+.v-badge__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background: var(--vault-primary, #7c3aed);
+  color: var(--vault-text, #fff);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: var(--vault-notif-button-radius, 6px);
+  transition: opacity 0.15s;
+}
+
+.v-badge__btn:hover {
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v-badge__trigger,
+  .v-badge__trigger svg,
+  .v-badge__panel {
+    transition-duration: 0.01ms !important;
+  }
+}
+`;
