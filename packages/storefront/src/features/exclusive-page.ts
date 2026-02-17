@@ -1,6 +1,8 @@
 import { escapeHtml } from '@vault/shared/utils/escape';
 import { resolveCampaignForBenefit, priorityForBenefit } from '@vault/shared/benefits/resolve';
 import type { CampaignIndex, ResolvableBenefit } from '@vault/shared/benefits/resolve';
+import { resolveTokens, tokensToCSS } from '@vault/shared/theme/tokens';
+import type { ThemeConfig } from '@vault/shared/types/display-config.types';
 import { log } from '../services/logger';
 import { loadBenefits, loadProduct } from '../services/api';
 import { getCampaignIndex } from '../services/bootstrap';
@@ -52,6 +54,33 @@ function findLandingConfig(
   return best;
 }
 
+function findThemeConfig(
+  bens: ResolvableBenefit[],
+  campaignsIndex: CampaignIndex,
+): ThemeConfig | null {
+  let best: ThemeConfig | null = null;
+  let bestPriority = -1;
+
+  for (const b of bens) {
+    const resolved = resolveCampaignForBenefit(b, campaignsIndex);
+    if (
+      (resolved.type === 'early_access' || b.type === 'visibility') &&
+      resolved.config?.displayConfig
+    ) {
+      const dc = resolved.config.displayConfig as unknown as Record<string, unknown>;
+      const th = dc.theme as ThemeConfig | undefined;
+      if (th) {
+        const p = priorityForBenefit(b, campaignsIndex);
+        if (p > bestPriority) {
+          bestPriority = p;
+          best = th;
+        }
+      }
+    }
+  }
+  return best;
+}
+
 export function initExclusivePage(): void {
   const grids = document.querySelectorAll<HTMLElement>('#vault-products-grid,[data-vault-grid]');
   if (!grids.length) return;
@@ -82,6 +111,15 @@ export function initExclusivePage(): void {
 
       const lp = findLandingConfig(bens, campaignsIndex);
       log('landing page config:', lp);
+
+      const section = grid.closest('.v-excl') || grid.parentElement;
+      if (section instanceof HTMLElement) {
+        const theme = findThemeConfig(bens, campaignsIndex);
+        const cssVars = tokensToCSS(resolveTokens(theme ?? undefined));
+        Object.entries(cssVars).forEach(([prop, val]) =>
+          section.style.setProperty(prop, val)
+        );
+      }
 
       if (lp?.enabled === false) {
         grid.innerHTML = '';
