@@ -1,0 +1,53 @@
+/* ==========================================================================
+   The Vault — Storefront Styles (non-Shadow-DOM)
+   Web Component styles (banner, modal, toast, badge, timer, product card)
+   are now inlined in their respective Shadow DOM / JS injections.
+   ========================================================================== */
+
+/* ==========================================================================
+   Exclusive Products Page (/apps/vault/exclusive)
+   ========================================================================== */
+.v-excl{max-width:var(--vault-page-max-width,1200px);margin:0 auto;padding:var(--vault-page-padding,40px 20px)}
+.v-excl__header{text-align:center;margin-bottom:var(--vault-header-spacing,40px)}
+.v-excl__title{font-size:var(--vault-title-size,28px);font-weight:700;color:var(--vault-title-color,#18181b);margin:0 0 8px}
+.v-excl__sub{font-size:var(--vault-subtitle-size,16px);color:var(--vault-subtitle-color,#6b7280);margin:0}
+
+/* Dynamic grid: columns set by JS via --vault-cols custom property */
+.v-excl__grid{
+  display:grid;
+  grid-template-columns:repeat(var(--vault-cols,3),1fr);
+  gap:var(--vault-grid-gap,24px);
+}
+.v-excl__loading{grid-column:1/-1;text-align:center;color:#9ca3af;font-size:15px;padding:60px 20px}
+.v-excl__empty{grid-column:1/-1;text-align:center;color:#9ca3af;font-size:16px;padding:60px 20px}
+.v-excl__login{text-align:center;padding:60px 20px;color:#6b7280;font-size:16px}
+.v-excl__login a{color:var(--vault-primary,#7c3aed);font-weight:600;text-decoration:underline}
+.v-loading-spin{width:32px;height:32px;border:3px solid #e5e7eb;border-top-color:var(--vault-primary,#7c3aed);border-radius:50%;margin:0 auto 12px;animation:v-spin .7s linear infinite}
+@keyframes v-spin{to{transform:rotate(360deg)}}
+
+@media(max-width:640px){
+  .v-excl{padding:24px 16px}
+  .v-excl__title{font-size:22px}
+  .v-excl__grid{grid-template-columns:repeat(2,1fr)!important;gap:var(--vault-grid-mobile-gap,12px)}
+}
+
+/* --- Strikethrough Pricing --------------------------------------------- */
+.v-price-old{text-decoration:line-through;color:#9ca3af;font-weight:400}
+.v-price-new{color:#dc2626;font-weight:700;font-size:1.1em}
+
+/* --- Discount Badge (product page) ------------------------------------- */
+.v-disc-badge{margin:8px 0 12px}
+.v-disc-badge__inner{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:color-mix(in srgb,var(--badge-color,#7c3aed) 10%,transparent);border:1px solid color-mix(in srgb,var(--badge-color,#7c3aed) 25%,transparent);border-radius:8px;color:var(--badge-color,#7c3aed)}
+.v-disc-badge__text{font-size:13px;font-weight:700}
+.v-disc-badge__val{font-size:13px;font-weight:600;padding-left:6px;border-left:1px solid color-mix(in srgb,var(--badge-color,#7c3aed) 30%,transparent)}
+.v-disc-badge svg{flex-shrink:0;width:16px;height:16px}
+@supports not (background:color-mix(in srgb,red 50%,blue)){
+  .v-disc-badge__inner{background:#f5f3ff;border-color:#ddd6fe}
+  .v-disc-badge__val{border-left-color:#ddd6fe}
+}
+
+/* --- Product Page Banner ----------------------------------------------- */
+.v-prod-banner{margin:12px 0;border-radius:10px;overflow:hidden}
+.v-prod-banner__inner{display:flex;align-items:center;gap:10px;padding:12px 16px}
+.v-prod-banner__inner svg{flex-shrink:0}
+.v-prod-banner__inner span{font-size:14px;font-weight:600;line-height:1.4}
