@@ -1,84 +1,97 @@
-// Condition types
-export type ConditionOperator = 'AND' | 'OR';
+// =============================================================================
+// Re-export shared types from @vault/shared
+// =============================================================================
 
-export type ConditionType =
-  | 'customer_tag'
-  | 'account_age_days'
-  | 'total_spent'
-  | 'order_count';
+export {
+  type ConditionOperator,
+  type ConditionType,
+  type ComparisonOperator,
+  type Condition,
+  type ConditionGroup,
+} from '@vault/shared/types/condition.types';
 
-export type ComparisonOperator =
-  | 'equals'
-  | 'not_equals'
-  | 'contains'
-  | 'not_contains'
-  | 'greater_than'
-  | 'less_than'
-  | 'greater_than_or_equal'
-  | 'less_than_or_equal';
+export {
+  type BenefitType,
+  type DiscountType,
+  type DiscountConfig,
+  type BaseBenefit,
+  type VisibilityBenefit,
+  type DiscountBenefit,
+  type FreeProductBenefit,
+  type Benefit,
+} from '@vault/shared/types/benefit.types';
 
-export interface Condition {
-  type: ConditionType;
-  operator: ComparisonOperator;
-  value: string | number;
-}
+export {
+  type CampaignType,
+  type DiscountMethod,
+  type EarlyAccessStorefrontApproach,
+  type EarlyAccessConfig,
+  type DiscountedProductConfig,
+  type TimerSaleConfig,
+  type CampaignConfig,
+  DEFAULT_CONFIGS,
+} from '@vault/shared/types/campaign-config.types';
 
-export interface ConditionGroup {
-  operator: ConditionOperator;
-  conditions: (Condition | ConditionGroup)[];
-}
+export {
+  type CampaignStatus,
+  type Campaign,
+  type CampaignListResponse,
+  type SetupStatus,
+} from '@vault/shared/types/campaign.types';
 
-// Benefit types
-export type BenefitType = 'visibility' | 'discount' | 'free_product';
+export {
+  type DisplayType,
+  type DisplayPosition,
+  type ShowFrequency,
+  type DisplayVisuals,
+  type DisplayBehavior,
+  type NotificationDisplayConfig,
+  type ItemLayout,
+  type LandingPageDisplayConfig,
+  type ProductPageDisplayConfig,
+  type TimerStyle,
+  type TimerPosition,
+  type TimerType,
+  type TimerDisplayConfig,
+  type EarlyAccessDisplayConfig,
+  type DiscountedProductDisplayConfig,
+  type TimerSaleDisplayConfig,
+  type CampaignDisplayConfig,
+  type ThemePreset,
+  type StyleTokens,
+  type ThemeConfig,
+} from '@vault/shared/types/display-config.types';
 
-export type DiscountType = 'percentage' | 'fixed_amount';
+// =============================================================================
+// Client-only types
+// =============================================================================
 
-export interface DiscountConfig {
-  type: DiscountType;
-  value: number;
-}
+import type { DisplayType, DisplayPosition, ShowFrequency } from '@vault/shared/types/display-config.types';
 
-export interface BaseBenefit {
-  type: BenefitType;
-  productIds?: string[];
-  collectionIds?: string[];
-}
-
-export interface VisibilityBenefit extends BaseBenefit {
-  type: 'visibility';
-}
-
-export interface DiscountBenefit extends BaseBenefit {
-  type: 'discount';
-  discount: DiscountConfig;
-}
-
-export interface FreeProductBenefit extends BaseBenefit {
-  type: 'free_product';
-  maxClaimsPerCustomer: number;
-}
-
-export type Benefit = VisibilityBenefit | DiscountBenefit | FreeProductBenefit;
-
-// Campaign types
-export type CampaignStatus = 'draft' | 'active' | 'paused' | 'archived';
-
-export interface Campaign {
+export interface SetupTask {
   id: string;
-  shopId: string;
-  name: string;
-  description: string | null;
-  conditions: ConditionGroup;
-  benefits: Benefit[];
-  priority: number;
-  status: CampaignStatus;
-  startsAt: string | null;
-  endsAt: string | null;
-  createdAt: string;
-  updatedAt: string;
+  title: string;
+  description: string;
+  completed: boolean;
+  action?: {
+    label: string;
+    url: string;
+    external?: boolean;
+  };
+  secondaryAction?: {
+    label: string;
+    onAction: () => void;
+  };
 }
 
-export interface CampaignListResponse {
-  campaigns: Campaign[];
-  total: number;
+export interface DisplayFormState {
+  displayType: DisplayType;
+  messageText: string;
+  buttonText: string;
+  buttonUrl: string;
+  primaryColor: string;
+  textColor: string;
+  position: DisplayPosition;
+  showFrequency: ShowFrequency;
+  autoDismissSeconds: string;
 }
