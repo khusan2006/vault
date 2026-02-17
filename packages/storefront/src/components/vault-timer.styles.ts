@@ -1,0 +1,146 @@
+export default `
+:host {
+  display: block;
+}
+
+.v-timer {
+  margin: 16px 0;
+}
+
+.v-timer__inner {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #f59e0b;
+  border-radius: var(--vault-timer-border-radius, 10px);
+  padding: 14px 18px;
+}
+
+.v-timer__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: #92400e;
+}
+
+.v-timer__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.v-timer__digits {
+  display: flex;
+  gap: 8px;
+}
+
+.v-timer__unit {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.v-timer__num {
+  font-size: var(--vault-timer-num-size, 28px);
+  font-weight: 800;
+  color: #78350f;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.v-timer__sep {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.v-timer--minimal .v-timer__inner {
+  background: #fafafa;
+  border-color: #e5e7eb;
+  padding: 10px 14px;
+}
+
+.v-timer--minimal .v-timer__header {
+  color: #6b7280;
+}
+
+.v-timer--minimal .v-timer__label {
+  color: #374151;
+  font-size: 13px;
+}
+
+.v-timer--minimal .v-timer__num {
+  font-size: var(--vault-timer-num-size, 20px);
+  color: #18181b;
+}
+
+.v-timer--minimal .v-timer__sep {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.v-timer--urgent .v-timer__inner {
+  background: linear-gradient(135deg, #fef2f2, #fecaca);
+  border-color: #ef4444;
+  animation: v-pulse 2s ease-in-out infinite;
+}
+
+.v-timer--urgent .v-timer__header {
+  color: #b91c1c;
+}
+
+.v-timer--urgent .v-timer__label {
+  color: #991b1b;
+}
+
+.v-timer--urgent .v-timer__num {
+  color: #7f1d1d;
+}
+
+.v-timer--urgent .v-timer__sep {
+  color: #b91c1c;
+}
+
+@keyframes v-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.v-timer__expired {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  padding: 14px 18px;
+  text-align: center;
+}
+
+.v-timer__expired .v-timer__label {
+  color: #991b1b;
+}
+
+@media (max-width: 640px) {
+  .v-timer__num {
+    font-size: var(--vault-timer-num-size, 22px);
+  }
+
+  .v-timer--minimal .v-timer__num {
+    font-size: var(--vault-timer-num-size, 18px);
+  }
+
+  .v-timer__inner {
+    padding: 10px 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v-timer__inner,
+  .v-timer--urgent .v-timer__inner {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+`;
