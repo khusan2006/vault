@@ -90,6 +90,7 @@ export function normalizeDisplayConfig(
           defaults.landingPage,
           provided.landingPage,
         ),
+        theme: provided.theme,
       };
     }
     case 'discounted_product': {
@@ -109,6 +110,7 @@ export function normalizeDisplayConfig(
           defaults.productPage,
           provided.productPage,
         ),
+        theme: provided.theme,
       };
     }
     case 'timer_sale': {
@@ -125,6 +127,7 @@ export function normalizeDisplayConfig(
           provided.productPage,
         ),
         timer: mergeTimer(defaults.timer, provided.timer),
+        theme: provided.theme,
       };
     }
   }
