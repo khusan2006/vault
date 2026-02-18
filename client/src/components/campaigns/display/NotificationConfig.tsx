@@ -1,17 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ReactNode } from "react";
 import {
   Card,
   BlockStack,
+  InlineStack,
   TextField,
   Select,
   Text,
   Divider,
   Checkbox,
-  InlineStack,
-  Icon,
 } from "@shopify/polaris";
 import type {
   NotificationDisplayConfig,
@@ -19,7 +17,7 @@ import type {
   DisplayPosition,
   ShowFrequency,
 } from "@/types";
-import { ChevronDownIcon } from "@shopify/polaris-icons";
+import { AccordionSection } from "./AccordionSection";
 
 const DISPLAY_TYPE_OPTIONS = [
   { label: "Banner", value: "banner" },
@@ -46,62 +44,6 @@ const FREQUENCY_OPTIONS = [
   { label: "Once per day", value: "once_per_day" },
   { label: "Once per week", value: "once_per_week" },
 ];
-
-// =============================================================================
-// Accordion section
-// =============================================================================
-
-function AccordionSection({
-  title,
-  description,
-  open,
-  onToggle,
-  children,
-}: {
-  title: string;
-  description?: string;
-  open: boolean;
-  onToggle: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className="overflow-hidden rounded-[var(--p-border-radius-200)] border border-[var(--p-color-border)] bg-[var(--p-color-bg-surface)]"
-    >
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="w-full cursor-pointer bg-transparent px-4 py-3 text-left"
-      >
-        <InlineStack align="space-between" blockAlign="center" gap="200">
-          <BlockStack gap="050">
-            <Text as="p" variant="bodyMd" fontWeight="semibold">
-              {title}
-            </Text>
-            {description && (
-              <Text as="p" variant="bodySm" tone="subdued">
-                {description}
-              </Text>
-            )}
-          </BlockStack>
-          <div
-            className={`transition-transform duration-150 ease-out ${open ? "rotate-180" : "rotate-0"}`}
-          >
-            <Icon source={ChevronDownIcon} tone="subdued" />
-          </div>
-        </InlineStack>
-      </button>
-      {open && (
-        <div
-          className="border-t border-t-[var(--p-color-border)] px-4 py-3"
-        >
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
 
 interface NotificationConfigProps {
   value: NotificationDisplayConfig;
