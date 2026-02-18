@@ -1,0 +1,44 @@
+{%- comment -%}
+  The Vault – Exclusive Products Section Block
+  Merchants add this block to any page to show the exclusive products grid.
+  Products are loaded client-side by vault.js via the app proxy.
+{%- endcomment -%}
+
+<script type="application/json" data-vault-bootstrap>
+{
+  "customerId": {% if customer %}{{ customer.id | json }}{% else %}null{% endif %},
+  "benefits": {% if customer and customer.metafields.vault.eligible_benefits %}{{ customer.metafields.vault.eligible_benefits.value | json }}{% else %}null{% endif %},
+  "campaigns": {% if app.metafields.vault.campaigns %}{{ app.metafields.vault.campaigns.value | json }}{% else %}null{% endif %},
+  "shop": {{ shop.permanent_domain | json }}
+}
+</script>
+
+<div class="v-excl" id="vault-exclusive-section" data-vault-section>
+  <div class="v-excl__header">
+    <h2 class="v-excl__title" data-vault-title>Exclusive Products</h2>
+    <p class="v-excl__sub" data-vault-subtitle>Products available just for you</p>
+  </div>
+
+  {%- if customer -%}
+    <div class="v-excl__grid" id="vault-products-grid" data-vault-grid>
+      <div class="v-excl__loading" id="vault-loading">
+        <div class="v-loading-spin"></div>
+        <p>Loading your exclusive products…</p>
+      </div>
+    </div>
+  {%- else -%}
+    <div class="v-excl__login">
+      <p>Please <a href="/account/login">log in</a> to see your exclusive products.</p>
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Vault Benefits",
+  "target": "section",
+  "javascript": "vault.js",
+  "stylesheet": "vault.css",
+  "settings": []
+}
+{% endschema %}

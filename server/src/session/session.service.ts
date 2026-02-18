@@ -90,23 +90,34 @@ export class SessionService {
   async upsert(data: SessionUpsertData): Promise<void> {
     const encryptedToken = this.cryptoService.encrypt(data.accessToken);
 
-    await this.sessionRepository
-      .createQueryBuilder()
-      .insert()
-      .into(Session)
-      .values({
+    const where: Record<string, unknown> = {
+      shop: data.shop,
+      isOnline: data.isOnline,
+    };
+    if (data.isOnline && data.userId) {
+      where.userId = data.userId;
+    }
+
+    let session = await this.sessionRepository.findOne({ where });
+
+    if (session) {
+      session.accessToken = encryptedToken;
+      session.scope = data.scope;
+      session.expiresAt = data.expiresAt ?? null;
+      session.onlineAccessInfo = data.onlineAccessInfo ?? null;
+    } else {
+      session = this.sessionRepository.create({
         shop: data.shop,
         accessToken: encryptedToken,
         scope: data.scope,
         isOnline: data.isOnline,
         userId: data.userId ?? null,
-        onlineAccessInfo: data.onlineAccessInfo
-          ? JSON.stringify(data.onlineAccessInfo)
-          : null,
+        onlineAccessInfo: data.onlineAccessInfo ?? null,
         expiresAt: data.expiresAt ?? null,
-      } as any)
-      .orUpdate(['accessToken', 'scope', 'expiresAt', 'onlineAccessInfo'], ['shop', 'isOnline', 'userId'])
-      .execute();
+      });
+    }
+
+    await this.sessionRepository.save(session);
 
     this.invalidateCacheForShop(data.shop, data.isOnline, data.userId);
   }

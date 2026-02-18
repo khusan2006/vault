@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Providers } from "./providers";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "The Vault",
@@ -20,7 +22,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js" />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Suspense fallback={null}>
+          <Providers>{children}</Providers>
+        </Suspense>
       </body>
     </html>
   );

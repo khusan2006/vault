@@ -19,7 +19,11 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@vault/shared/*": ["../packages/shared/src/*"],
+      "@vault/shared": ["../packages/shared/src/index.ts"],
+      "@vault/storefront/*": ["../packages/storefront/src/*"],
+      "@vault/storefront": ["../packages/storefront/src/index.ts"]
     }
   },
   "include": [

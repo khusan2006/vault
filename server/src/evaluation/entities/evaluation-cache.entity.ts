@@ -7,11 +7,23 @@ import {
   Index,
   Unique,
 } from 'typeorm';
-import type { Benefit } from '../../common/types/index.js';
+import type { Benefit, CampaignType, CampaignConfig } from '../../common/types/index.js';
 
+/**
+ * A computed benefit is the evaluation output stored in the cache and synced
+ * to Shopify metafields. It carries the campaign context alongside the config
+ * so the storefront extension knows how to render.
+ *
+ * The `type` field here refers to the legacy BenefitType ('visibility' | 'discount')
+ * for backward compatibility with existing storefront code.
+ * `campaignType` is the new discriminant ('early_access' | 'discounted_product' | 'timer_sale').
+ */
 export type ComputedBenefit = Benefit & {
   campaignId: string;
   campaignName: string;
+  campaignType?: CampaignType;
+  campaignConfig?: CampaignConfig;
+  campaignEndsAt?: string | null;
 };
 
 @Entity('evaluation_cache')
@@ -33,7 +45,7 @@ export class EvaluationCache {
   @Column({ name: 'computed_benefits', type: 'jsonb', default: [] })
   computedBenefits!: ComputedBenefit[];
 
-  @Column({ name: 'customer_data_hash', nullable: true })
+  @Column({ name: 'customer_data_hash', type: 'varchar', nullable: true })
   customerDataHash!: string | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })

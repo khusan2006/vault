@@ -44,6 +44,20 @@ export class WebhooksController {
             await this.webhooksService.handleAppUninstalled(result.shop!);
             break;
 
+          case 'customers/update':
+            await this.webhooksService.handleCustomerUpdate(
+              result.shop!,
+              result.payload,
+            );
+            break;
+
+          case 'orders/paid':
+            await this.webhooksService.handleOrderPaid(
+              result.shop!,
+              result.payload,
+            );
+            break;
+
           default:
             this.logger.warn(`Unhandled webhook topic: ${result.topic}`);
         }

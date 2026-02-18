@@ -1,0 +1,11 @@
+/*
+ * Tailwind CSS v4.
+ *
+ * We intentionally do NOT import `tailwindcss/preflight.css` because Shopify
+ * Polaris already provides a baseline and preflight-like resets. Importing
+ * Tailwind preflight on top can cause subtle style regressions.
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+

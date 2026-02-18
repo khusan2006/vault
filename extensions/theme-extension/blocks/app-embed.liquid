@@ -1,0 +1,27 @@
+{%- comment -%}
+  The Vault – App Embed Block
+  Injected before </body>. Loads vault.js & vault.css which handle:
+  - Notification banners / modals / toasts / badges for eligible customers
+  - Strikethrough pricing on product pages (discounted_product campaigns)
+  - Countdown timers on product pages (timer_sale campaigns)
+  - Exclusive products grid on the /apps/vault/exclusive proxy page
+{%- endcomment -%}
+
+<script type="application/json" data-vault-bootstrap>
+{
+  "customerId": {% if customer %}{{ customer.id | json }}{% else %}null{% endif %},
+  "benefits": {% if customer and customer.metafields.vault.eligible_benefits %}{{ customer.metafields.vault.eligible_benefits.value | json }}{% else %}null{% endif %},
+  "campaigns": {% if app.metafields.vault.campaigns %}{{ app.metafields.vault.campaigns.value | json }}{% else %}null{% endif %},
+  "shop": {{ shop.permanent_domain | json }}
+}
+</script>
+
+{% schema %}
+{
+  "name": "The Vault",
+  "target": "body",
+  "javascript": "vault.js",
+  "stylesheet": "vault.css",
+  "settings": []
+}
+{% endschema %}

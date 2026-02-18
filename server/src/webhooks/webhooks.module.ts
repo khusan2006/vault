@@ -4,9 +4,16 @@ import { WebhooksService } from './webhooks.service.js';
 import { WebhookQueueService } from './webhook-queue.service.js';
 import { ShopifyModule } from '../shopify/shopify.module.js';
 import { SessionModule } from '../session/session.module.js';
+import { EvaluationModule } from '../evaluation/evaluation.module.js';
+import { CampaignsModule } from '../campaigns/campaigns.module.js';
 
 @Module({
-  imports: [ShopifyModule, SessionModule],
+  imports: [
+    ShopifyModule,
+    SessionModule,
+    EvaluationModule,
+    CampaignsModule,
+  ],
   controllers: [WebhooksController],
   providers: [WebhooksService, WebhookQueueService],
   exports: [WebhooksService],

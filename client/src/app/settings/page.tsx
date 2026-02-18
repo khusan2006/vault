@@ -6,7 +6,7 @@ import {
   Card,
   BlockStack,
   Text,
-  Banner,
+  Button,
 } from "@shopify/polaris";
 
 export default function SettingsPage() {
@@ -15,14 +15,16 @@ export default function SettingsPage() {
       <Layout>
         <Layout.Section>
           <Card>
-            <BlockStack gap="400">
+            <BlockStack gap="200">
               <Text variant="headingMd" as="h2">
-                App Settings
+                Settings are now managed per campaign
               </Text>
-              <Banner tone="info">
-                Settings page coming soon. Configure metafield namespaces,
-                default behaviors, and notification preferences.
-              </Banner>
+              <Text as="p" tone="subdued">
+                This space will be used for global settings in a future update.
+              </Text>
+              <Button variant="primary" disabled>
+                Coming soon
+              </Button>
             </BlockStack>
           </Card>
         </Layout.Section>

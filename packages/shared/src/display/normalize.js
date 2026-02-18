@@ -1,0 +1,73 @@
+import { createDefaultDisplayConfig } from './defaults.js';
+function mergeNotification(base, override) {
+    if (!override)
+        return base;
+    return {
+        ...base,
+        ...override,
+        visuals: {
+            ...base.visuals,
+            ...(override.visuals ?? {}),
+        },
+        behavior: {
+            ...base.behavior,
+            ...(override.behavior ?? {}),
+        },
+    };
+}
+function mergeLandingPage(base, override) {
+    return { ...base, ...(override ?? {}) };
+}
+function mergeProductPage(base, override) {
+    if (!override)
+        return base;
+    return {
+        ...base,
+        ...override,
+        discountBadge: {
+            ...base.discountBadge,
+            ...(override.discountBadge ?? {}),
+        },
+        banner: override.banner ?? base.banner,
+    };
+}
+function mergeTimer(base, override) {
+    return { ...base, ...(override ?? {}) };
+}
+export function normalizeDisplayConfig(type, displayConfig) {
+    switch (type) {
+        case 'early_access': {
+            const defaults = createDefaultDisplayConfig('early_access');
+            if (!displayConfig)
+                return defaults;
+            const provided = displayConfig;
+            return {
+                notification: mergeNotification(defaults.notification, provided.notification),
+                landingPage: mergeLandingPage(defaults.landingPage, provided.landingPage),
+            };
+        }
+        case 'discounted_product': {
+            const defaults = createDefaultDisplayConfig('discounted_product');
+            if (!displayConfig)
+                return defaults;
+            const provided = displayConfig;
+            return {
+                notification: mergeNotification(defaults.notification, provided.notification),
+                landingPage: mergeLandingPage(defaults.landingPage, provided.landingPage),
+                productPage: mergeProductPage(defaults.productPage, provided.productPage),
+            };
+        }
+        case 'timer_sale': {
+            const defaults = createDefaultDisplayConfig('timer_sale');
+            if (!displayConfig)
+                return defaults;
+            const provided = displayConfig;
+            return {
+                notification: mergeNotification(defaults.notification, provided.notification),
+                productPage: mergeProductPage(defaults.productPage, provided.productPage),
+                timer: mergeTimer(defaults.timer, provided.timer),
+            };
+        }
+    }
+}
+//# sourceMappingURL=normalize.js.map

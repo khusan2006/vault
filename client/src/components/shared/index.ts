@@ -1,1 +1,1 @@
-// Shared components
+export { StatusBadge } from "./StatusBadge";

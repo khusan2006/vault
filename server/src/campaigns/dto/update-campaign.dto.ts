@@ -4,10 +4,14 @@ import {
   IsInt,
   IsEnum,
   IsDateString,
-  IsArray,
+  IsObject,
   Min,
+  ValidateIf,
 } from 'class-validator';
-import type { ConditionGroup, Benefit } from '../../common/types/index.js';
+import type {
+  ConditionGroup,
+  CampaignConfig,
+} from '../../common/types/index.js';
 import type { CampaignStatus } from '../entities/campaign.entity.js';
 
 export class UpdateCampaignDto {
@@ -19,12 +23,13 @@ export class UpdateCampaignDto {
   @IsString()
   description?: string | null;
 
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
+  @IsObject()
   conditions?: ConditionGroup;
 
   @IsOptional()
-  @IsArray()
-  benefits?: Benefit[];
+  @IsObject()
+  config?: CampaignConfig;
 
   @IsOptional()
   @IsInt()

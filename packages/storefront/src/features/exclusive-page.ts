@@ -8,7 +8,7 @@ import { loadBenefits, loadProduct } from '../services/api';
 import { getCampaignIndex } from '../services/bootstrap';
 
 const EMPTY_MSG = 'No exclusive products available right now. Check back later!';
-
+console.log('hello world')
 function val<T>(v: T | undefined | null, def: T): T {
   return v !== undefined && v !== null ? v : def;
 }

@@ -5,7 +5,7 @@ export function configuration() {
     shopify: {
       apiKey: process.env.SHOPIFY_API_KEY || '',
       apiSecret: process.env.SHOPIFY_API_SECRET || '',
-      scopes: process.env.SHOPIFY_SCOPES || 'read_products',
+      scopes: process.env.SHOPIFY_SCOPES || 'read_products,read_themes',
       hostName: process.env.SHOPIFY_HOST_NAME || 'localhost',
     },
     database: {

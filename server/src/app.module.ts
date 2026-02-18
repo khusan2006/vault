@@ -14,8 +14,11 @@ import { ShopThrottlerGuard } from './common/guards/shop-throttler.guard.js';
 import { AppController } from './app.controller.js';
 import { Campaign } from './campaigns/entities/campaign.entity.js';
 import { CampaignsModule } from './campaigns/campaigns.module.js';
-import { Claim } from './claims/entities/claim.entity.js';
 import { EvaluationCache } from './evaluation/entities/evaluation-cache.entity.js';
+import { EvaluationModule } from './evaluation/evaluation.module.js';
+import { ProxyModule } from './proxy/proxy.module.js';
+import { SetupModule } from './setup/setup.module.js';
+import { MetafieldSyncJob } from './shopify/entities/metafield-sync-job.entity.js';
 
 @Module({
   imports: [
@@ -50,7 +53,7 @@ import { EvaluationCache } from './evaluation/entities/evaluation-cache.entity.j
         username: configService.get<string>('database.username', 'postgres'),
         password: configService.get<string>('database.password', ''),
         database: configService.get<string>('database.name', 'shopify_app'),
-        entities: [Session, Campaign, Claim, EvaluationCache],
+        entities: [Session, Campaign, EvaluationCache, MetafieldSyncJob],
         synchronize: configService.get<string>('nodeEnv') !== 'production',
         ssl: configService.get<boolean>('database.ssl', false)
           ? { rejectUnauthorized: false }
@@ -63,6 +66,9 @@ import { EvaluationCache } from './evaluation/entities/evaluation-cache.entity.j
     ShopifyModule,
     WebhooksModule,
     CampaignsModule,
+    EvaluationModule,
+    ProxyModule,
+    SetupModule,
   ],
   controllers: [AppController],
   providers: [

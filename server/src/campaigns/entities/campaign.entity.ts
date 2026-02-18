@@ -6,7 +6,11 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import type { ConditionGroup, Benefit } from '../../common/types/index.js';
+import type {
+  ConditionGroup,
+  CampaignType,
+  CampaignConfig,
+} from '../../common/types/index.js';
 
 export type CampaignStatus = 'draft' | 'active' | 'paused' | 'archived';
 
@@ -20,6 +24,13 @@ export class Campaign {
   @Column({ name: 'shop_id' })
   shopId!: string;
 
+  @Column({
+    type: 'varchar',
+    length: 30,
+    default: 'early_access',
+  })
+  type!: CampaignType;
+
   @Column()
   name!: string;
 
@@ -29,8 +40,8 @@ export class Campaign {
   @Column({ type: 'jsonb' })
   conditions!: ConditionGroup;
 
-  @Column({ type: 'jsonb' })
-  benefits!: Benefit[];
+  @Column({ type: 'jsonb', default: '{}' })
+  config!: CampaignConfig;
 
   @Column({ type: 'int', default: 0 })
   priority!: number;

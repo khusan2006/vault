@@ -1,0 +1,13 @@
+{
+  "vault": {
+    "exclusive_access": "Exclusive Access",
+    "member_price": "Member Price",
+    "limited_time": "Limited Time",
+    "off": "off",
+    "view_products": "View Exclusive Products",
+    "login_required": "Please log in to see your exclusive benefits.",
+    "no_products": "No exclusive products available right now. Check back later!",
+    "loading": "Loading your exclusive products…",
+    "offer_expired": "This offer has expired"
+  }
+}

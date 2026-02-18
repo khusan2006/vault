@@ -1,0 +1,17 @@
+api_version = "2025-10"
+
+[[extensions]]
+name = "Vault customer account"
+handle = "vault-customer-account"
+uid = "a3b3093b-2d48-b5ff-96a8-32197035bae944d9abeb"
+type = "ui_extension"
+
+  [[extensions.targeting]]
+  target = "customer-account.page.render"
+  module = "./src/CustomerAccountPage.jsx"
+
+    [extensions.targeting.settings]
+    allow_direct_linking = true
+
+  [extensions.capabilities]
+  api_access = true

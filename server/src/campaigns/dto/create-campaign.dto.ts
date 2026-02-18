@@ -4,15 +4,21 @@ import {
   IsInt,
   IsEnum,
   IsDateString,
-  IsArray,
-  ValidateNested,
+  IsObject,
   Min,
+  ValidateIf,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import type { ConditionGroup, Benefit } from '../../common/types/index.js';
+import type {
+  ConditionGroup,
+  CampaignType,
+  CampaignConfig,
+} from '../../common/types/index.js';
 import type { CampaignStatus } from '../entities/campaign.entity.js';
 
 export class CreateCampaignDto {
+  @IsEnum(['early_access', 'discounted_product', 'timer_sale'])
+  type!: CampaignType;
+
   @IsString()
   name!: string;
 
@@ -20,10 +26,12 @@ export class CreateCampaignDto {
   @IsString()
   description?: string;
 
-  conditions!: ConditionGroup;
+  @ValidateIf((_, value) => value !== undefined)
+  @IsObject()
+  conditions?: ConditionGroup;
 
-  @IsArray()
-  benefits!: Benefit[];
+  @IsObject()
+  config!: CampaignConfig;
 
   @IsOptional()
   @IsInt()
