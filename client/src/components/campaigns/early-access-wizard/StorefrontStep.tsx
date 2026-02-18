@@ -298,13 +298,14 @@ export function StorefrontStep({
 
   const handleSelectApproach = useCallback(
     (approach: EarlyAccessStorefrontApproach) => {
+      const defaults = buildDefaultDisplayConfig(approach);
       updateConfig({
         storefrontApproach: approach,
-        displayConfig: buildDefaultDisplayConfig(approach),
+        displayConfig: { ...defaults, theme: config.displayConfig?.theme },
       });
       setShowCustomize(false);
     },
-    [updateConfig],
+    [config.displayConfig?.theme, updateConfig],
   );
 
   const handleUpdateDisplayConfig = useCallback(
@@ -320,10 +321,11 @@ export function StorefrontStep({
 
   const handleResetDefaults = useCallback(() => {
     if (!selectedApproach) return;
+    const defaults = buildDefaultDisplayConfig(selectedApproach);
     updateConfig({
-      displayConfig: buildDefaultDisplayConfig(selectedApproach),
+      displayConfig: { ...defaults, theme: config.displayConfig?.theme },
     });
-  }, [selectedApproach, updateConfig]);
+  }, [selectedApproach, config.displayConfig?.theme, updateConfig]);
 
   const summary = useMemo(() => {
     if (!config.displayConfig) return null;

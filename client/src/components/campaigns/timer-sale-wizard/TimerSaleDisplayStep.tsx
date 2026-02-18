@@ -101,10 +101,11 @@ export function TimerSaleDisplayStep({
   );
 
   const handleResetDefaults = useCallback(() => {
+    const defaults = buildDefaultDisplayConfig(config.timerType);
     updateConfig({
-      displayConfig: buildDefaultDisplayConfig(config.timerType),
+      displayConfig: { ...defaults, theme: config.displayConfig?.theme },
     });
-  }, [config.timerType, updateConfig]);
+  }, [config.timerType, config.displayConfig?.theme, updateConfig]);
 
   const summary = useMemo(() => {
     if (!config.displayConfig) return null;

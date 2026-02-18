@@ -106,8 +106,11 @@ export function DiscountedProductDisplayStep({
   );
 
   const handleResetDefaults = useCallback(() => {
-    updateConfig({ displayConfig: buildDefaultDisplayConfig() });
-  }, [updateConfig]);
+    const defaults = buildDefaultDisplayConfig();
+    updateConfig({
+      displayConfig: { ...defaults, theme: config.displayConfig?.theme },
+    });
+  }, [config.displayConfig?.theme, updateConfig]);
 
   const summary = useMemo(() => {
     if (!config.displayConfig) return null;

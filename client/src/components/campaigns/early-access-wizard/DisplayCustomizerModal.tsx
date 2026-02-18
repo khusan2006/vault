@@ -46,11 +46,6 @@ export function DisplayCustomizerModal({
     useState<EarlyAccessDisplayConfig>(displayConfig);
   const [panel, setPanel] = useState<"menu" | "theme" | "prompt" | "landing">("theme");
 
-
-  // Keep draft in sync when modal opens or when parent config changes.
-  // Keep draft in sync when modal opens.
-  // We do NOT want to reset on displayConfig change, because that happens
-  // on every keystroke/edit in the child components, which would reset the panel.
   useEffect(() => {
     if (open) {
       setDraftConfig(displayConfig);
