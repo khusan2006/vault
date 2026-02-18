@@ -31,6 +31,10 @@ export const PRESETS: Record<ThemePreset, StyleTokens> = {
     notifButtonRadius: '6px',
     timerBorderRadius: '10px',
     timerNumSize: '28px',
+    titleWeight: '600',
+    subtitleWeight: '400',
+    cardTitleWeight: '500',
+    cardPriceWeight: '600',
   },
   sharp: {
     cardBorderRadius: '4px',
@@ -62,6 +66,10 @@ export const PRESETS: Record<ThemePreset, StyleTokens> = {
     notifButtonRadius: '2px',
     timerBorderRadius: '4px',
     timerNumSize: '24px',
+    titleWeight: '700',
+    subtitleWeight: '400',
+    cardTitleWeight: '600',
+    cardPriceWeight: '700',
   },
   soft: {
     cardBorderRadius: '24px',
@@ -93,6 +101,10 @@ export const PRESETS: Record<ThemePreset, StyleTokens> = {
     notifButtonRadius: '999px',
     timerBorderRadius: '16px',
     timerNumSize: '32px',
+    titleWeight: '500',
+    subtitleWeight: '400',
+    cardTitleWeight: '500',
+    cardPriceWeight: '500',
   },
   minimal: {
     cardBorderRadius: '0px',
@@ -124,5 +136,9 @@ export const PRESETS: Record<ThemePreset, StyleTokens> = {
     notifButtonRadius: '0px',
     timerBorderRadius: '0px',
     timerNumSize: '28px',
+    titleWeight: '400',
+    subtitleWeight: '400',
+    cardTitleWeight: '400',
+    cardPriceWeight: '500',
   },
 };
