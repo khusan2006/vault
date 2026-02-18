@@ -67,6 +67,12 @@ export interface StyleTokens {
   // Timer
   timerBorderRadius: string;
   timerNumSize: string;
+
+  // Font weights
+  titleWeight: string;
+  subtitleWeight: string;
+  cardTitleWeight: string;
+  cardPriceWeight: string;
 }
 
 export interface ThemeConfig {
