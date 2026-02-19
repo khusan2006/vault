@@ -8,6 +8,8 @@ import type {
 } from "@/types";
 import type { SelectedResource } from "@/hooks/useResourcePicker";
 
+export type HighlightZone = 'cards' | 'layout' | 'typography' | 'notifications' | null;
+
 export interface PreviewProduct {
   id: string;
   title: string;
@@ -32,5 +34,6 @@ export interface StorefrontPreviewProps {
   view?: "landing" | "product";
   discount?: DiscountConfig;
   forceSampleProducts?: boolean;
+  highlightZone?: HighlightZone;
 }
 

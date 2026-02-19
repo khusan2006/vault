@@ -20,6 +20,7 @@ export function StorefrontPreview({
   view = "landing",
   discount,
   forceSampleProducts = true,
+  highlightZone,
 }: StorefrontPreviewProps) {
   useEffect(() => {
     ensureWebComponents();
@@ -60,6 +61,11 @@ export function StorefrontPreview({
   const resolvedView =
     view === "landing" && resolvedLanding ? "landing" : "product";
 
+  const zoneClass = (zone: string) =>
+    highlightZone === zone
+      ? "ring-2 ring-[var(--p-color-border-interactive)] ring-offset-2 rounded-lg transition-shadow duration-200"
+      : "transition-shadow duration-200";
+
   return (
     <div
       className="flex h-full flex-1 justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_#f8fafc_0%,_#eef2ff_40%,_#f1f5f9_100%)] p-8"
@@ -70,7 +76,9 @@ export function StorefrontPreview({
         }`}
       >
         {bannerAtTop && (
-          <NotificationPreview config={notification} />
+          <div className={zoneClass('notifications')}>
+            <NotificationPreview config={notification} />
+          </div>
         )}
         <MockStorefrontHeader mobile={isMobile} />
         <div
@@ -78,12 +86,14 @@ export function StorefrontPreview({
           style={{ paddingBottom: bottomPadding }}
         >
           {notification.type !== "banner" && (
-            <NotificationPreview config={notification} />
+            <div className={zoneClass('notifications')}>
+              <NotificationPreview config={notification} />
+            </div>
           )}
           <div
             className={`mx-auto max-w-[1200px] ${
               isMobile ? "px-4 py-6" : "px-8 py-12"
-            }`}
+            } ${zoneClass('layout')}`}
             style={{
               ...themeVars,
               maxWidth: 'var(--vault-page-max-width, 1200px)',
@@ -94,6 +104,7 @@ export function StorefrontPreview({
                 config={resolvedLanding}
                 products={previewProducts}
                 isMobile={isMobile}
+                highlightZone={highlightZone}
               />
             ) : (
               <ProductPagePreview
@@ -108,7 +119,9 @@ export function StorefrontPreview({
         </div>
 
         {bannerAtBottom && (
-          <NotificationPreview config={notification} />
+          <div className={zoneClass('notifications')}>
+            <NotificationPreview config={notification} />
+          </div>
         )}
       </div>
     </div>

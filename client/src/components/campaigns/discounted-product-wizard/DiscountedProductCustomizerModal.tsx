@@ -17,6 +17,7 @@ import {
   ThemeConfigEditor,
 } from "../display";
 import { StorefrontPreview } from "../preview/StorefrontPreview";
+import type { HighlightZone } from "@/types/storefront-preview.types";
 import { CustomizerShell } from "../customizer/CustomizerShell";
 import { CustomizerPreviewPane } from "../customizer/CustomizerPreviewPane";
 import { CustomizerMenuButton } from "../customizer/CustomizerMenuButton";
@@ -69,6 +70,7 @@ function DiscountedProductCustomizerModalInner({
     useState<DiscountedProductDisplayConfig>(displayConfig);
   const [panel, setPanel] =
     useState<"menu" | "theme" | "notification" | "landing" | "product">("theme");
+  const [highlightZone, setHighlightZone] = useState<HighlightZone>(null);
 
   const handleUpdateNotification = useCallback(
     (notification: DiscountedProductDisplayConfig["notification"]) => {
@@ -187,6 +189,7 @@ function DiscountedProductCustomizerModalInner({
                     setDraftConfig(next);
                     onDisplayConfigChange(next);
                   }}
+                  onHighlightChange={(zone) => setHighlightZone(zone as HighlightZone)}
                 />
               )}
 
@@ -257,6 +260,7 @@ function DiscountedProductCustomizerModalInner({
             products={products}
             view={previewView}
             discount={discount}
+            highlightZone={highlightZone}
           />
         </CustomizerPreviewPane>
       }

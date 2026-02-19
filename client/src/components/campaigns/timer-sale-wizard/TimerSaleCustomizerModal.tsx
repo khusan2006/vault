@@ -17,6 +17,7 @@ import {
   ThemeConfigEditor,
 } from "../display";
 import { StorefrontPreview } from "../preview/StorefrontPreview";
+import type { HighlightZone } from "@/types/storefront-preview.types";
 import { CustomizerShell } from "../customizer/CustomizerShell";
 import { CustomizerPreviewPane } from "../customizer/CustomizerPreviewPane";
 import { CustomizerMenuButton } from "../customizer/CustomizerMenuButton";
@@ -69,6 +70,7 @@ function TimerSaleCustomizerModalInner({
     useState<TimerSaleDisplayConfig>(displayConfig);
   const [panel, setPanel] =
     useState<"menu" | "theme" | "notification" | "product" | "timer">("theme");
+  const [highlightZone, setHighlightZone] = useState<HighlightZone>(null);
 
   const handleUpdateNotification = useCallback(
     (notification: TimerSaleDisplayConfig["notification"]) => {
@@ -181,6 +183,7 @@ function TimerSaleCustomizerModalInner({
                     setDraftConfig(next);
                     onDisplayConfigChange(next);
                   }}
+                  onHighlightChange={(zone) => setHighlightZone(zone as HighlightZone)}
                 />
               )}
 
@@ -251,6 +254,7 @@ function TimerSaleCustomizerModalInner({
             products={products}
             view="product"
             discount={discount}
+            highlightZone={highlightZone}
           />
         </CustomizerPreviewPane>
       }

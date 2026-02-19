@@ -17,6 +17,7 @@ import { NotificationConfig } from "../display/NotificationConfig";
 import { LandingPageConfig } from "../display/LandingPageConfig";
 import { ThemeConfigEditor } from "../display";
 import { StorefrontPreview } from "../preview/StorefrontPreview";
+import type { HighlightZone } from "@/types/storefront-preview.types";
 import { CustomizerShell } from "../customizer/CustomizerShell";
 import { CustomizerPreviewPane } from "../customizer/CustomizerPreviewPane";
 import { CustomizerMenuButton } from "../customizer/CustomizerMenuButton";
@@ -44,6 +45,7 @@ export function DisplayCustomizerModal({
   const [draftConfig, setDraftConfig] =
     useState<EarlyAccessDisplayConfig>(displayConfig);
   const [panel, setPanel] = useState<"menu" | "theme" | "prompt" | "landing">("theme");
+  const [highlightZone, setHighlightZone] = useState<HighlightZone>(null);
 
   useEffect(() => {
     if (open) {
@@ -150,6 +152,7 @@ export function DisplayCustomizerModal({
                     setDraftConfig(next);
                     onDisplayConfigChange(next);
                   }}
+                  onHighlightChange={(zone) => setHighlightZone(zone as HighlightZone)}
                 />
               )}
 
@@ -202,6 +205,7 @@ export function DisplayCustomizerModal({
             config={draftConfig}
             device={device}
             products={products}
+            highlightZone={highlightZone}
           />
         </CustomizerPreviewPane>
       }
