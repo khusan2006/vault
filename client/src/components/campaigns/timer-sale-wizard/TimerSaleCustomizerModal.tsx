@@ -5,7 +5,6 @@ import {
   BlockStack,
   Text,
   Button,
-  Divider,
   InlineStack,
 } from "@shopify/polaris";
 import { ChevronLeftIcon } from "@shopify/polaris-icons";
@@ -133,36 +132,32 @@ function TimerSaleCustomizerModalInner({
           </InlineStack>
 
           {panel === "menu" && (
-            <BlockStack gap="050">
+            <BlockStack gap="200">
               <Text variant="headingMd" as="h2">
                 Customize
               </Text>
 
-              <CustomizerMenuButton
-                label="Theme & styles"
-                onClick={() => setPanel("theme")}
-              />
+              <div className="divide-y divide-[var(--p-color-border)]">
+                <CustomizerMenuButton
+                  label="Theme & styles"
+                  onClick={() => setPanel("theme")}
+                />
 
-              <Divider />
+                <CustomizerMenuButton
+                  label="Sale prompt"
+                  onClick={() => setPanel("notification")}
+                />
 
-              <CustomizerMenuButton
-                label="Sale prompt"
-                onClick={() => setPanel("notification")}
-              />
+                <CustomizerMenuButton
+                  label="Product page pricing"
+                  onClick={() => setPanel("product")}
+                />
 
-              <Divider />
-
-              <CustomizerMenuButton
-                label="Product page pricing"
-                onClick={() => setPanel("product")}
-              />
-
-              <Divider />
-
-              <CustomizerMenuButton
-                label="Countdown timer"
-                onClick={() => setPanel("timer")}
-              />
+                <CustomizerMenuButton
+                  label="Countdown timer"
+                  onClick={() => setPanel("timer")}
+                />
+              </div>
             </BlockStack>
           )}
 

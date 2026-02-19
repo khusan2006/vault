@@ -5,7 +5,6 @@ import {
   BlockStack,
   Text,
   Button,
-  Divider,
   InlineStack,
 } from "@shopify/polaris";
 import { ChevronLeftIcon } from "@shopify/polaris-icons";
@@ -107,29 +106,27 @@ export function DisplayCustomizerModal({
           </InlineStack>
 
           {panel === "menu" && (
-            <BlockStack gap="050">
+            <BlockStack gap="200">
               <Text variant="headingMd" as="h2">
                 Customize
               </Text>
 
-              <CustomizerMenuButton
-                label="Theme & styles"
-                onClick={() => setPanel("theme")}
-              />
+              <div className="divide-y divide-[var(--p-color-border)]">
+                <CustomizerMenuButton
+                  label="Theme & styles"
+                  onClick={() => setPanel("theme")}
+                />
 
-              <Divider />
+                <CustomizerMenuButton
+                  label="Access prompt"
+                  onClick={() => setPanel("prompt")}
+                />
 
-              <CustomizerMenuButton
-                label="Access prompt"
-                onClick={() => setPanel("prompt")}
-              />
-
-              <Divider />
-
-              <CustomizerMenuButton
-                label="Exclusive landing page"
-                onClick={() => setPanel("landing")}
-              />
+                <CustomizerMenuButton
+                  label="Exclusive landing page"
+                  onClick={() => setPanel("landing")}
+                />
+              </div>
             </BlockStack>
           )}
 

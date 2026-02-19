@@ -5,7 +5,6 @@ import {
   BlockStack,
   Text,
   Button,
-  Divider,
   InlineStack,
 } from "@shopify/polaris";
 import { ChevronLeftIcon } from "@shopify/polaris-icons";
@@ -139,36 +138,32 @@ function DiscountedProductCustomizerModalInner({
           </InlineStack>
 
           {panel === "menu" && (
-            <BlockStack gap="050">
+            <BlockStack gap="200">
               <Text variant="headingMd" as="h2">
                 Customize
               </Text>
 
-              <CustomizerMenuButton
-                label="Theme & styles"
-                onClick={() => setPanel("theme")}
-              />
+              <div className="divide-y divide-[var(--p-color-border)]">
+                <CustomizerMenuButton
+                  label="Theme & styles"
+                  onClick={() => setPanel("theme")}
+                />
 
-              <Divider />
+                <CustomizerMenuButton
+                  label="Offer prompt"
+                  onClick={() => setPanel("notification")}
+                />
 
-              <CustomizerMenuButton
-                label="Offer prompt"
-                onClick={() => setPanel("notification")}
-              />
+                <CustomizerMenuButton
+                  label="Exclusive landing page"
+                  onClick={() => setPanel("landing")}
+                />
 
-              <Divider />
-
-              <CustomizerMenuButton
-                label="Exclusive landing page"
-                onClick={() => setPanel("landing")}
-              />
-
-              <Divider />
-
-              <CustomizerMenuButton
-                label="Product page pricing"
-                onClick={() => setPanel("product")}
-              />
+                <CustomizerMenuButton
+                  label="Product page pricing"
+                  onClick={() => setPanel("product")}
+                />
+              </div>
             </BlockStack>
           )}
 

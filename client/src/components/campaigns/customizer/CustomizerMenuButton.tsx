@@ -19,7 +19,7 @@ export function CustomizerMenuButton({
     <button
       type="button"
       onClick={onClick}
-      className="w-full cursor-pointer rounded-[10px] border border-[var(--p-color-border)] bg-[var(--p-color-bg-surface)] px-[6px] py-[10px] text-left"
+      className="w-full cursor-pointer bg-transparent py-3 text-left transition-colors duration-100 hover:bg-[var(--p-color-bg-surface-hover)] rounded-[var(--p-border-radius-200)]"
     >
       <InlineStack align="space-between" blockAlign="center">
         <Text as="p" variant="bodyMd" fontWeight="semibold">
