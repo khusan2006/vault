@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Card,
   BlockStack,
-  InlineStack,
   TextField,
   Select,
   Text,
@@ -18,6 +17,7 @@ import type {
   ShowFrequency,
 } from "@/types";
 import { AccordionSection } from "./AccordionSection";
+import { ColorInput } from "./controls";
 
 const DISPLAY_TYPE_OPTIONS = [
   { label: "Banner", value: "banner" },
@@ -174,49 +174,22 @@ export function NotificationConfig({
 
   const appearanceFields = (
     <BlockStack gap="300">
-      <InlineStack gap="200" blockAlign="center">
-        <div
-          aria-hidden
-          className="h-7 w-7 rounded-[var(--p-border-radius-100)] border border-[var(--p-color-border)]"
-          style={{ backgroundColor: value.visuals.primaryColor }}
-        />
-        <div className="flex-1">
-          <TextField
-            label="Primary color"
-            value={value.visuals.primaryColor}
-            onChange={(primaryColor) =>
-              onChange({
-                ...value,
-                visuals: { ...value.visuals, primaryColor },
-              })
-            }
-            placeholder="#7c3aed"
-            autoComplete="off"
-          />
-        </div>
-      </InlineStack>
-
-      <InlineStack gap="200" blockAlign="center">
-        <div
-          aria-hidden
-          className="h-7 w-7 rounded-[var(--p-border-radius-100)] border border-[var(--p-color-border)]"
-          style={{ backgroundColor: value.visuals.textColor }}
-        />
-        <div className="flex-1">
-          <TextField
-            label="Text color"
-            value={value.visuals.textColor}
-            onChange={(textColor) =>
-              onChange({
-                ...value,
-                visuals: { ...value.visuals, textColor },
-              })
-            }
-            placeholder="#ffffff"
-            autoComplete="off"
-          />
-        </div>
-      </InlineStack>
+      <ColorInput
+        label="Primary color"
+        value={value.visuals.primaryColor}
+        onChange={(primaryColor) =>
+          onChange({ ...value, visuals: { ...value.visuals, primaryColor } })
+        }
+        placeholder="#7c3aed"
+      />
+      <ColorInput
+        label="Text color"
+        value={value.visuals.textColor}
+        onChange={(textColor) =>
+          onChange({ ...value, visuals: { ...value.visuals, textColor } })
+        }
+        placeholder="#ffffff"
+      />
 
       {showPosition && (
         <Select
