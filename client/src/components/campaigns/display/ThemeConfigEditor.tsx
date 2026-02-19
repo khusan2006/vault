@@ -1,10 +1,16 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { BlockStack, TextField, Text } from "@shopify/polaris";
+import { BlockStack, Text, Checkbox, Select } from "@shopify/polaris";
 import type { ThemeConfig, ThemePreset, StyleTokens } from "@/types";
 import { PRESETS } from "@vault/shared/theme/presets";
-import { AccordionSection } from "./AccordionSection";
+import { SHADOW_PRESETS } from "@vault/shared/theme/tokens";
+import {
+  ColorInput,
+  SizeSlider,
+  TextStyleGroup,
+  SettingsSection,
+} from "./controls";
 
 // =============================================================================
 // Preset metadata
@@ -26,87 +32,43 @@ const PRESET_OPTIONS: {
 ];
 
 // =============================================================================
-// Override section definitions
+// Shadow options for Select
 // =============================================================================
 
-interface OverrideField {
-  key: keyof StyleTokens;
-  label: string;
-}
-
-interface OverrideSection {
-  id: string;
-  title: string;
-  description: string;
-  fields: OverrideField[];
-}
-
-const OVERRIDE_SECTIONS: OverrideSection[] = [
-  {
-    id: "card",
-    title: "Card Appearance",
-    description: "Border radius, shadow, colors, and buttons",
-    fields: [
-      { key: "cardBorderRadius", label: "Card border radius" },
-      { key: "cardShadow", label: "Card shadow" },
-      { key: "cardBackground", label: "Card background" },
-      { key: "cardBorderColor", label: "Card border color" },
-      { key: "cardHoverShadow", label: "Card hover shadow" },
-      { key: "cardHoverLift", label: "Card hover lift" },
-      { key: "cardImageAspectRatio", label: "Card image aspect ratio" },
-      { key: "cardInfoPadding", label: "Card info padding" },
-      { key: "cardButtonBg", label: "Card button background" },
-      { key: "cardButtonColor", label: "Card button color" },
-      { key: "cardButtonRadius", label: "Card button radius" },
-    ],
-  },
-  {
-    id: "grid",
-    title: "Grid & Layout",
-    description: "Spacing, page width, and padding",
-    fields: [
-      { key: "gridGap", label: "Grid gap" },
-      { key: "gridMobileGap", label: "Grid mobile gap" },
-      { key: "pageMaxWidth", label: "Page max width" },
-      { key: "pagePadding", label: "Page padding" },
-      { key: "headerSpacing", label: "Header spacing" },
-    ],
-  },
-  {
-    id: "typography",
-    title: "Typography",
-    description: "Font sizes and text colors",
-    fields: [
-      { key: "titleSize", label: "Title size" },
-      { key: "titleColor", label: "Title color" },
-      { key: "subtitleSize", label: "Subtitle size" },
-      { key: "subtitleColor", label: "Subtitle color" },
-      { key: "cardTitleSize", label: "Card title size" },
-      { key: "cardTitleColor", label: "Card title color" },
-      { key: "cardPriceSize", label: "Card price size" },
-      { key: "cardPriceColor", label: "Card price color" },
-    ],
-  },
-  {
-    id: "notifications",
-    title: "Notifications",
-    description: "Notification border radius and font sizing",
-    fields: [
-      { key: "notifBorderRadius", label: "Notification border radius" },
-      { key: "notifFontSize", label: "Notification font size" },
-      { key: "notifButtonRadius", label: "Notification button radius" },
-    ],
-  },
-  {
-    id: "timer",
-    title: "Timer",
-    description: "Timer border radius and number size",
-    fields: [
-      { key: "timerBorderRadius", label: "Timer border radius" },
-      { key: "timerNumSize", label: "Timer number size" },
-    ],
-  },
+const SHADOW_OPTIONS = [
+  { label: "None", value: "none" },
+  { label: "Subtle", value: "subtle" },
+  { label: "Medium", value: "medium" },
+  { label: "Strong", value: "strong" },
 ];
+
+const ASPECT_RATIO_OPTIONS = [
+  { label: "1:1 (Square)", value: "1/1" },
+  { label: "3:4", value: "3/4" },
+  { label: "4:5", value: "4/5" },
+  { label: "16:9 (Wide)", value: "16/9" },
+];
+
+// =============================================================================
+// Helpers
+// =============================================================================
+
+function parseNum(val: string | undefined): number | "" {
+  if (!val) return "";
+  const n = parseFloat(val);
+  return isNaN(n) ? "" : n;
+}
+
+function numToPx(val: number | ""): string {
+  return val === "" ? "" : `${val}px`;
+}
+
+function findShadowPreset(cssValue: string): string {
+  for (const [name, css] of Object.entries(SHADOW_PRESETS)) {
+    if (css === cssValue) return name;
+  }
+  return "medium";
+}
 
 // =============================================================================
 // Props
@@ -115,22 +77,29 @@ const OVERRIDE_SECTIONS: OverrideSection[] = [
 interface ThemeConfigEditorProps {
   value: ThemeConfig;
   onChange: (value: ThemeConfig) => void;
+  onHighlightChange?: (zone: string | null) => void;
 }
 
 // =============================================================================
 // Component
 // =============================================================================
 
-export function ThemeConfigEditor({ value, onChange }: ThemeConfigEditorProps) {
+export function ThemeConfigEditor({
+  value,
+  onChange,
+  onHighlightChange,
+}: ThemeConfigEditorProps) {
   const [sectionsOpen, setSectionsOpen] = useState<Record<string, boolean>>({
-    card: false,
-    grid: false,
+    cards: false,
+    layout: false,
     typography: false,
     notifications: false,
-    timer: false,
   });
+  const [showAdvancedCards, setShowAdvancedCards] = useState(false);
+  const [showAdvancedLayout, setShowAdvancedLayout] = useState(false);
 
   const presetTokens = PRESETS[value.preset];
+  const overrides = value.overrides;
 
   const handlePresetSelect = useCallback(
     (preset: ThemePreset) => {
@@ -139,7 +108,7 @@ export function ThemeConfigEditor({ value, onChange }: ThemeConfigEditorProps) {
     [onChange],
   );
 
-  const handleOverrideChange = useCallback(
+  const setOverride = useCallback(
     (key: keyof StyleTokens, fieldValue: string) => {
       const newOverrides = { ...value.overrides };
       if (fieldValue === "") {
@@ -195,41 +164,309 @@ export function ThemeConfigEditor({ value, onChange }: ThemeConfigEditorProps) {
         </div>
       </BlockStack>
 
-      {/* Override sections */}
+      {/* Customize heading */}
       <BlockStack gap="200">
         <Text as="p" variant="bodyMd" fontWeight="semibold">
-          Overrides
+          Customize
         </Text>
         <Text as="p" variant="bodySm" tone="subdued">
-          Leave fields empty to use the preset default. Values shown as
-          placeholders are the current preset defaults.
+          Fine-tune individual settings. Empty fields use the preset default.
         </Text>
       </BlockStack>
 
-      <BlockStack gap="300">
-        {OVERRIDE_SECTIONS.map((section) => (
-          <AccordionSection
-            key={section.id}
-            title={section.title}
-            description={section.description}
-            open={sectionsOpen[section.id] ?? false}
-            onToggle={() => toggleSection(section.id)}
-          >
-            <BlockStack gap="300">
-              {section.fields.map(({ key, label }) => (
-                <TextField
-                  key={key}
-                  label={label}
-                  placeholder={presetTokens[key]}
-                  value={value.overrides[key] ?? ""}
-                  onChange={(v) => handleOverrideChange(key, v)}
-                  autoComplete="off"
-                />
-              ))}
+      {/* Section 1: Cards */}
+      <SettingsSection
+        title="Cards"
+        description="Border radius, shadow, colors, and buttons"
+        open={sectionsOpen.cards ?? false}
+        onToggle={() => toggleSection("cards")}
+        onMouseEnter={() => onHighlightChange?.("cards")}
+        onMouseLeave={() => onHighlightChange?.(null)}
+      >
+        <BlockStack gap="400">
+          <SizeSlider
+            label="Border radius"
+            value={parseNum(overrides.cardBorderRadius)}
+            onChange={(v) => setOverride("cardBorderRadius", numToPx(v))}
+            min={0}
+            max={24}
+            placeholder={parseNum(presetTokens.cardBorderRadius) || undefined}
+          />
+          <Select
+            label="Shadow"
+            options={SHADOW_OPTIONS}
+            value={findShadowPreset(
+              overrides.cardShadow ?? presetTokens.cardShadow,
+            )}
+            onChange={(v) => setOverride("cardShadow", SHADOW_PRESETS[v] ?? "")}
+          />
+          <ColorInput
+            label="Background"
+            value={overrides.cardBackground ?? ""}
+            onChange={(v) => setOverride("cardBackground", v)}
+            placeholder={presetTokens.cardBackground}
+          />
+          <ColorInput
+            label="Border color"
+            value={overrides.cardBorderColor ?? ""}
+            onChange={(v) => setOverride("cardBorderColor", v)}
+            placeholder={presetTokens.cardBorderColor}
+          />
+          <ColorInput
+            label="Button background"
+            value={overrides.cardButtonBg ?? ""}
+            onChange={(v) => setOverride("cardButtonBg", v)}
+            placeholder={presetTokens.cardButtonBg}
+          />
+          <SizeSlider
+            label="Button radius"
+            value={parseNum(overrides.cardButtonRadius)}
+            onChange={(v) => setOverride("cardButtonRadius", numToPx(v))}
+            min={0}
+            max={24}
+            placeholder={parseNum(presetTokens.cardButtonRadius) || undefined}
+          />
+
+          <Checkbox
+            label="Show advanced settings"
+            checked={showAdvancedCards}
+            onChange={setShowAdvancedCards}
+          />
+          {showAdvancedCards && (
+            <BlockStack gap="400">
+              <ColorInput
+                label="Button text color"
+                value={overrides.cardButtonColor ?? ""}
+                onChange={(v) => setOverride("cardButtonColor", v)}
+                placeholder={presetTokens.cardButtonColor}
+              />
+              <Select
+                label="Image aspect ratio"
+                options={ASPECT_RATIO_OPTIONS}
+                value={
+                  overrides.cardImageAspectRatio ??
+                  presetTokens.cardImageAspectRatio
+                }
+                onChange={(v) => setOverride("cardImageAspectRatio", v)}
+              />
             </BlockStack>
-          </AccordionSection>
-        ))}
-      </BlockStack>
+          )}
+        </BlockStack>
+      </SettingsSection>
+
+      {/* Section 2: Layout */}
+      <SettingsSection
+        title="Layout"
+        description="Spacing, page width, and padding"
+        open={sectionsOpen.layout ?? false}
+        onToggle={() => toggleSection("layout")}
+        onMouseEnter={() => onHighlightChange?.("layout")}
+        onMouseLeave={() => onHighlightChange?.(null)}
+      >
+        <BlockStack gap="400">
+          <SizeSlider
+            label="Grid gap"
+            value={parseNum(overrides.gridGap)}
+            onChange={(v) => setOverride("gridGap", numToPx(v))}
+            min={8}
+            max={48}
+            placeholder={parseNum(presetTokens.gridGap) || undefined}
+          />
+          <SizeSlider
+            label="Page max width"
+            value={parseNum(overrides.pageMaxWidth)}
+            onChange={(v) => setOverride("pageMaxWidth", numToPx(v))}
+            min={800}
+            max={1400}
+            step={50}
+            placeholder={parseNum(presetTokens.pageMaxWidth) || undefined}
+          />
+          <SizeSlider
+            label="Page padding"
+            value={parseNum(overrides.pagePadding)}
+            onChange={(v) => setOverride("pagePadding", numToPx(v))}
+            min={0}
+            max={48}
+            placeholder={parseNum(presetTokens.pagePadding) || undefined}
+          />
+          <SizeSlider
+            label="Header spacing"
+            value={parseNum(overrides.headerSpacing)}
+            onChange={(v) => setOverride("headerSpacing", numToPx(v))}
+            min={0}
+            max={48}
+            placeholder={parseNum(presetTokens.headerSpacing) || undefined}
+          />
+
+          <Checkbox
+            label="Show advanced settings"
+            checked={showAdvancedLayout}
+            onChange={setShowAdvancedLayout}
+          />
+          {showAdvancedLayout && (
+            <SizeSlider
+              label="Grid mobile gap"
+              value={parseNum(overrides.gridMobileGap)}
+              onChange={(v) => setOverride("gridMobileGap", numToPx(v))}
+              min={8}
+              max={48}
+              placeholder={parseNum(presetTokens.gridMobileGap) || undefined}
+            />
+          )}
+        </BlockStack>
+      </SettingsSection>
+
+      {/* Section 3: Typography */}
+      <SettingsSection
+        title="Typography"
+        description="Heading, subheading, and card text styles"
+        open={sectionsOpen.typography ?? false}
+        onToggle={() => toggleSection("typography")}
+        onMouseEnter={() => onHighlightChange?.("typography")}
+        onMouseLeave={() => onHighlightChange?.(null)}
+      >
+        <BlockStack gap="500">
+          <TextStyleGroup
+            label="Heading"
+            color={{
+              value: overrides.titleColor ?? "",
+              onChange: (v) => setOverride("titleColor", v),
+              placeholder: presetTokens.titleColor,
+            }}
+            size={{
+              value: parseNum(overrides.titleSize),
+              onChange: (v) => setOverride("titleSize", numToPx(v)),
+              placeholder: parseNum(presetTokens.titleSize) || undefined,
+              min: 16,
+              max: 48,
+            }}
+            weight={{
+              value: overrides.titleWeight ?? "",
+              onChange: (v) => setOverride("titleWeight", v),
+              placeholder: presetTokens.titleWeight,
+            }}
+          />
+          <TextStyleGroup
+            label="Subheading"
+            color={{
+              value: overrides.subtitleColor ?? "",
+              onChange: (v) => setOverride("subtitleColor", v),
+              placeholder: presetTokens.subtitleColor,
+            }}
+            size={{
+              value: parseNum(overrides.subtitleSize),
+              onChange: (v) => setOverride("subtitleSize", numToPx(v)),
+              placeholder: parseNum(presetTokens.subtitleSize) || undefined,
+              min: 12,
+              max: 24,
+            }}
+            weight={{
+              value: overrides.subtitleWeight ?? "",
+              onChange: (v) => setOverride("subtitleWeight", v),
+              placeholder: presetTokens.subtitleWeight,
+            }}
+          />
+          <TextStyleGroup
+            label="Card title"
+            color={{
+              value: overrides.cardTitleColor ?? "",
+              onChange: (v) => setOverride("cardTitleColor", v),
+              placeholder: presetTokens.cardTitleColor,
+            }}
+            size={{
+              value: parseNum(overrides.cardTitleSize),
+              onChange: (v) => setOverride("cardTitleSize", numToPx(v)),
+              placeholder: parseNum(presetTokens.cardTitleSize) || undefined,
+              min: 12,
+              max: 24,
+            }}
+            weight={{
+              value: overrides.cardTitleWeight ?? "",
+              onChange: (v) => setOverride("cardTitleWeight", v),
+              placeholder: presetTokens.cardTitleWeight,
+            }}
+          />
+          <TextStyleGroup
+            label="Card price"
+            color={{
+              value: overrides.cardPriceColor ?? "",
+              onChange: (v) => setOverride("cardPriceColor", v),
+              placeholder: presetTokens.cardPriceColor,
+            }}
+            size={{
+              value: parseNum(overrides.cardPriceSize),
+              onChange: (v) => setOverride("cardPriceSize", numToPx(v)),
+              placeholder: parseNum(presetTokens.cardPriceSize) || undefined,
+              min: 12,
+              max: 24,
+            }}
+            weight={{
+              value: overrides.cardPriceWeight ?? "",
+              onChange: (v) => setOverride("cardPriceWeight", v),
+              placeholder: presetTokens.cardPriceWeight,
+            }}
+          />
+        </BlockStack>
+      </SettingsSection>
+
+      {/* Section 4: Notifications & Timer */}
+      <SettingsSection
+        title="Notifications & Timer"
+        description="Border radius and sizing"
+        open={sectionsOpen.notifications ?? false}
+        onToggle={() => toggleSection("notifications")}
+        onMouseEnter={() => onHighlightChange?.("notifications")}
+        onMouseLeave={() => onHighlightChange?.(null)}
+      >
+        <BlockStack gap="400">
+          <SizeSlider
+            label="Notification radius"
+            value={parseNum(overrides.notifBorderRadius)}
+            onChange={(v) => setOverride("notifBorderRadius", numToPx(v))}
+            min={0}
+            max={24}
+            placeholder={
+              parseNum(presetTokens.notifBorderRadius) || undefined
+            }
+          />
+          <SizeSlider
+            label="Notification font size"
+            value={parseNum(overrides.notifFontSize)}
+            onChange={(v) => setOverride("notifFontSize", numToPx(v))}
+            min={12}
+            max={20}
+            placeholder={parseNum(presetTokens.notifFontSize) || undefined}
+          />
+          <SizeSlider
+            label="Notification button radius"
+            value={parseNum(overrides.notifButtonRadius)}
+            onChange={(v) => setOverride("notifButtonRadius", numToPx(v))}
+            min={0}
+            max={16}
+            placeholder={
+              parseNum(presetTokens.notifButtonRadius) || undefined
+            }
+          />
+          <SizeSlider
+            label="Timer radius"
+            value={parseNum(overrides.timerBorderRadius)}
+            onChange={(v) => setOverride("timerBorderRadius", numToPx(v))}
+            min={0}
+            max={24}
+            placeholder={
+              parseNum(presetTokens.timerBorderRadius) || undefined
+            }
+          />
+          <SizeSlider
+            label="Timer number size"
+            value={parseNum(overrides.timerNumSize)}
+            onChange={(v) => setOverride("timerNumSize", numToPx(v))}
+            min={16}
+            max={48}
+            placeholder={parseNum(presetTokens.timerNumSize) || undefined}
+          />
+        </BlockStack>
+      </SettingsSection>
     </BlockStack>
   );
 }
