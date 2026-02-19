@@ -1,6 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Popover,
   ColorPicker,
   TextField,
   InlineStack,
@@ -32,18 +31,37 @@ function hexToHsb(hex: string): HSBAColor {
   return { ...hsb, alpha: 1 };
 }
 
+/**
+ * Color input with inline expandable picker.
+ * Avoids Polaris Popover which causes cross-origin SecurityError
+ * in Shopify embedded app iframe contexts (App Bridge modals).
+ * @see https://community.shopify.dev/t/polaris-react-popover-no-longer-working-local-dev/25094
+ */
 export function ColorInput({
   label,
   value,
   onChange,
   placeholder = "#000000",
 }: ColorInputProps) {
-  const [popoverActive, setPopoverActive] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const togglePopover = useCallback(
-    () => setPopoverActive((prev) => !prev),
+  const togglePicker = useCallback(
+    () => setPickerOpen((prev) => !prev),
     [],
   );
+
+  // Close picker when clicking outside
+  useEffect(() => {
+    if (!pickerOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [pickerOpen]);
 
   const hsbColor = useMemo<HSBAColor>(() => {
     const hex = value || placeholder;
@@ -77,38 +95,33 @@ export function ColorInput({
     ? normalizeHex(displayColor)
     : "#000000";
 
-  const activator = (
-    <button
-      type="button"
-      onClick={togglePopover}
-      className="h-8 w-8 shrink-0 cursor-pointer rounded-[var(--p-border-radius-200)] border border-[var(--p-color-border)] shadow-sm transition-shadow hover:shadow-md"
-      style={{ backgroundColor: swatchColor }}
-      aria-label={`Pick color for ${label}`}
-    />
-  );
-
   return (
-    <InlineStack gap="200" blockAlign="center" wrap={false}>
-      <Popover
-        active={popoverActive}
-        activator={activator}
-        onClose={togglePopover}
-        preferredAlignment="left"
-      >
-        <div className="p-3">
+    <div ref={containerRef}>
+      <InlineStack gap="200" blockAlign="center" wrap={false}>
+        <button
+          type="button"
+          onClick={togglePicker}
+          className="h-8 w-8 shrink-0 cursor-pointer rounded-[var(--p-border-radius-200)] border border-[var(--p-color-border)] shadow-sm transition-shadow hover:shadow-md"
+          style={{ backgroundColor: swatchColor }}
+          aria-label={`Pick color for ${label}`}
+          aria-expanded={pickerOpen}
+        />
+        <div className="flex-1">
+          <TextField
+            label={label}
+            value={value}
+            onChange={handleTextChange}
+            placeholder={placeholder}
+            autoComplete="off"
+            labelHidden={false}
+          />
+        </div>
+      </InlineStack>
+      {pickerOpen && (
+        <div className="mt-2 rounded-[var(--p-border-radius-200)] border border-[var(--p-color-border)] bg-[var(--p-color-bg-surface)] p-3 shadow-md">
           <ColorPicker color={hsbColor} onChange={handleColorPickerChange} />
         </div>
-      </Popover>
-      <div className="flex-1">
-        <TextField
-          label={label}
-          value={value}
-          onChange={handleTextChange}
-          placeholder={placeholder}
-          autoComplete="off"
-          labelHidden={false}
-        />
-      </div>
-    </InlineStack>
+      )}
+    </div>
   );
 }
