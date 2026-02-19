@@ -1,24 +1,18 @@
 import type { LandingPageDisplayConfig } from "@/types";
-import type { HighlightZone, PreviewProduct } from "@/types/storefront-preview.types";
+import type { PreviewProduct } from "@/types/storefront-preview.types";
 import { toProductData } from "@/utils/storefront-preview";
 
 interface LandingPagePreviewProps {
   config: LandingPageDisplayConfig;
   products: PreviewProduct[];
   isMobile: boolean;
-  highlightZone?: HighlightZone;
 }
 
 export function LandingPagePreview({
   config,
   products,
   isMobile,
-  highlightZone,
 }: LandingPagePreviewProps) {
-  const zoneClass = (zone: string) =>
-    highlightZone === zone
-      ? "ring-2 ring-[var(--p-color-border-interactive)] ring-offset-2 rounded-lg transition-shadow duration-200"
-      : "transition-shadow duration-200";
   if (!config.enabled) {
     return (
       <div className="flex h-[300px] flex-col items-center justify-center gap-4 text-slate-400">
@@ -30,7 +24,7 @@ export function LandingPagePreview({
 
   return (
     <div>
-      <div className={zoneClass('typography')} style={{ textAlign: "center", marginBottom: 40 }}>
+      <div data-zone="typography" style={{ textAlign: "center", marginBottom: 40 }}>
         <h2
           style={{
             fontSize: 'var(--vault-title-size, 28px)',
@@ -53,7 +47,7 @@ export function LandingPagePreview({
         </p>
       </div>
       <div
-        className={zoneClass('cards')}
+        data-zone="cards"
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${isMobile ? 2 : config.gridColumns}, 1fr)`,

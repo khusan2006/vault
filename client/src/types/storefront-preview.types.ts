@@ -1,3 +1,4 @@
+import type { RefObject } from "react";
 import type {
   DiscountConfig,
   LandingPageDisplayConfig,
@@ -7,8 +8,6 @@ import type {
   TimerDisplayConfig,
 } from "@/types";
 import type { SelectedResource } from "@/hooks/useResourcePicker";
-
-export type HighlightZone = 'cards' | 'layout' | 'typography' | 'notifications' | null;
 
 export interface PreviewProduct {
   id: string;
@@ -34,6 +33,7 @@ export interface StorefrontPreviewProps {
   view?: "landing" | "product";
   discount?: DiscountConfig;
   forceSampleProducts?: boolean;
-  highlightZone?: HighlightZone;
+  /** Ref to the preview container for highlight zone CSS data attribute */
+  previewRef?: RefObject<HTMLDivElement | null>;
 }
 

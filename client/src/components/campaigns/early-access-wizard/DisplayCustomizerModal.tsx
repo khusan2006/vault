@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   BlockStack,
   Text,
@@ -17,7 +17,6 @@ import { NotificationConfig } from "../display/NotificationConfig";
 import { LandingPageConfig } from "../display/LandingPageConfig";
 import { ThemeConfigEditor } from "../display";
 import { StorefrontPreview } from "../preview/StorefrontPreview";
-import type { HighlightZone } from "@/types/storefront-preview.types";
 import { CustomizerShell } from "../customizer/CustomizerShell";
 import { CustomizerPreviewPane } from "../customizer/CustomizerPreviewPane";
 import { CustomizerMenuButton } from "../customizer/CustomizerMenuButton";
@@ -45,7 +44,7 @@ export function DisplayCustomizerModal({
   const [draftConfig, setDraftConfig] =
     useState<EarlyAccessDisplayConfig>(displayConfig);
   const [panel, setPanel] = useState<"menu" | "theme" | "prompt" | "landing">("theme");
-  const [highlightZone, setHighlightZone] = useState<HighlightZone>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -152,7 +151,7 @@ export function DisplayCustomizerModal({
                     setDraftConfig(next);
                     onDisplayConfigChange(next);
                   }}
-                  onHighlightChange={(zone) => setHighlightZone(zone as HighlightZone)}
+                  previewRef={previewRef}
                 />
               )}
 
@@ -205,7 +204,7 @@ export function DisplayCustomizerModal({
             config={draftConfig}
             device={device}
             products={products}
-            highlightZone={highlightZone}
+            previewRef={previewRef}
           />
         </CustomizerPreviewPane>
       }

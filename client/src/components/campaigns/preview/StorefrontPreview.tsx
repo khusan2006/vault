@@ -13,6 +13,24 @@ import { NotificationPreview } from "./NotificationPreview";
 import { ProductPagePreview } from "./ProductPagePreview";
 import { LandingPagePreview } from "./LandingPagePreview";
 
+/**
+ * Highlight zone styles applied via CSS data attribute on the preview container.
+ * Using `[data-highlight-zone]` selectors avoids React state re-renders that
+ * trigger Polaris Popover portal access in cross-origin iframe contexts.
+ */
+const HIGHLIGHT_ZONE_STYLES = `
+  [data-highlight-zone] [data-zone] {
+    transition: box-shadow 200ms ease, border-radius 200ms ease;
+  }
+  [data-highlight-zone="cards"] [data-zone="cards"],
+  [data-highlight-zone="layout"] [data-zone="layout"],
+  [data-highlight-zone="typography"] [data-zone="typography"],
+  [data-highlight-zone="notifications"] [data-zone="notifications"] {
+    box-shadow: 0 0 0 2px var(--p-color-border-interactive, #2c6ecb);
+    border-radius: 8px;
+  }
+`;
+
 export function StorefrontPreview({
   config,
   device,
@@ -20,7 +38,7 @@ export function StorefrontPreview({
   view = "landing",
   discount,
   forceSampleProducts = true,
-  highlightZone,
+  previewRef,
 }: StorefrontPreviewProps) {
   useEffect(() => {
     ensureWebComponents();
@@ -61,22 +79,19 @@ export function StorefrontPreview({
   const resolvedView =
     view === "landing" && resolvedLanding ? "landing" : "product";
 
-  const zoneClass = (zone: string) =>
-    highlightZone === zone
-      ? "ring-2 ring-[var(--p-color-border-interactive)] ring-offset-2 rounded-lg transition-shadow duration-200"
-      : "transition-shadow duration-200";
-
   return (
     <div
+      ref={previewRef as React.RefObject<HTMLDivElement>}
       className="flex h-full flex-1 justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_#f8fafc_0%,_#eef2ff_40%,_#f1f5f9_100%)] p-8"
     >
+      <style dangerouslySetInnerHTML={{ __html: HIGHLIGHT_ZONE_STYLES }} />
       <div
         className={`relative flex h-full flex-col overflow-hidden bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.05),_0_20px_25px_-5px_rgba(0,0,0,0.1)] transition-[width] duration-300 ease-out ${
           isMobile ? "w-[375px] rounded-[24px]" : "w-full rounded-[8px]"
         }`}
       >
         {bannerAtTop && (
-          <div className={zoneClass('notifications')}>
+          <div data-zone="notifications">
             <NotificationPreview config={notification} />
           </div>
         )}
@@ -86,14 +101,15 @@ export function StorefrontPreview({
           style={{ paddingBottom: bottomPadding }}
         >
           {notification.type !== "banner" && (
-            <div className={zoneClass('notifications')}>
+            <div data-zone="notifications">
               <NotificationPreview config={notification} />
             </div>
           )}
           <div
+            data-zone="layout"
             className={`mx-auto max-w-[1200px] ${
               isMobile ? "px-4 py-6" : "px-8 py-12"
-            } ${zoneClass('layout')}`}
+            }`}
             style={{
               ...themeVars,
               maxWidth: 'var(--vault-page-max-width, 1200px)',
@@ -104,7 +120,6 @@ export function StorefrontPreview({
                 config={resolvedLanding}
                 products={previewProducts}
                 isMobile={isMobile}
-                highlightZone={highlightZone}
               />
             ) : (
               <ProductPagePreview
@@ -119,7 +134,7 @@ export function StorefrontPreview({
         </div>
 
         {bannerAtBottom && (
-          <div className={zoneClass('notifications')}>
+          <div data-zone="notifications">
             <NotificationPreview config={notification} />
           </div>
         )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, type RefObject } from "react";
 import { BlockStack, Text, Checkbox, Select } from "@shopify/polaris";
 import type { ThemeConfig, ThemePreset, StyleTokens } from "@/types";
 import { PRESETS } from "@vault/shared/theme/presets";
@@ -77,7 +77,8 @@ function findShadowPreset(cssValue: string): string {
 interface ThemeConfigEditorProps {
   value: ThemeConfig;
   onChange: (value: ThemeConfig) => void;
-  onHighlightChange?: (zone: string | null) => void;
+  /** Ref to the preview container — highlight zone is set via data attribute (no re-render) */
+  previewRef?: RefObject<HTMLDivElement | null>;
 }
 
 // =============================================================================
@@ -87,7 +88,7 @@ interface ThemeConfigEditorProps {
 export function ThemeConfigEditor({
   value,
   onChange,
-  onHighlightChange,
+  previewRef,
 }: ThemeConfigEditorProps) {
   const [sectionsOpen, setSectionsOpen] = useState<Record<string, boolean>>({
     cards: false,
@@ -100,6 +101,20 @@ export function ThemeConfigEditor({
 
   const presetTokens = PRESETS[value.preset];
   const overrides = value.overrides;
+
+  // Set highlight zone via DOM data attribute — no React state update, no re-render
+  const setHighlight = useCallback(
+    (zone: string | null) => {
+      if (previewRef?.current) {
+        if (zone) {
+          previewRef.current.dataset.highlightZone = zone;
+        } else {
+          delete previewRef.current.dataset.highlightZone;
+        }
+      }
+    },
+    [previewRef],
+  );
 
   const handlePresetSelect = useCallback(
     (preset: ThemePreset) => {
@@ -180,8 +195,8 @@ export function ThemeConfigEditor({
         description="Border radius, shadow, colors, and buttons"
         open={sectionsOpen.cards ?? false}
         onToggle={() => toggleSection("cards")}
-        onMouseEnter={() => onHighlightChange?.("cards")}
-        onMouseLeave={() => onHighlightChange?.(null)}
+        onMouseEnter={() => setHighlight("cards")}
+        onMouseLeave={() => setHighlight(null)}
       >
         <BlockStack gap="400">
           <SizeSlider
@@ -260,8 +275,8 @@ export function ThemeConfigEditor({
         description="Spacing, page width, and padding"
         open={sectionsOpen.layout ?? false}
         onToggle={() => toggleSection("layout")}
-        onMouseEnter={() => onHighlightChange?.("layout")}
-        onMouseLeave={() => onHighlightChange?.(null)}
+        onMouseEnter={() => setHighlight("layout")}
+        onMouseLeave={() => setHighlight(null)}
       >
         <BlockStack gap="400">
           <SizeSlider
@@ -322,8 +337,8 @@ export function ThemeConfigEditor({
         description="Heading, subheading, and card text styles"
         open={sectionsOpen.typography ?? false}
         onToggle={() => toggleSection("typography")}
-        onMouseEnter={() => onHighlightChange?.("typography")}
-        onMouseLeave={() => onHighlightChange?.(null)}
+        onMouseEnter={() => setHighlight("typography")}
+        onMouseLeave={() => setHighlight(null)}
       >
         <BlockStack gap="500">
           <TextStyleGroup
@@ -415,8 +430,8 @@ export function ThemeConfigEditor({
         description="Border radius and sizing"
         open={sectionsOpen.notifications ?? false}
         onToggle={() => toggleSection("notifications")}
-        onMouseEnter={() => onHighlightChange?.("notifications")}
-        onMouseLeave={() => onHighlightChange?.(null)}
+        onMouseEnter={() => setHighlight("notifications")}
+        onMouseLeave={() => setHighlight(null)}
       >
         <BlockStack gap="400">
           <SizeSlider
