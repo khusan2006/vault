@@ -4,7 +4,6 @@ import { useState } from "react";
 import {
   Card,
   BlockStack,
-  InlineStack,
   TextField,
   Select,
   Text,
@@ -13,6 +12,7 @@ import {
 } from "@shopify/polaris";
 import type { LandingPageDisplayConfig } from "@/types";
 import { AccordionSection } from "./AccordionSection";
+import { ColorInput } from "./controls";
 
 const GRID_COLUMN_OPTIONS = [
   { label: "2 columns", value: "2" },
@@ -111,24 +111,12 @@ export function LandingPageConfig({
         onChange={(badgeText) => onChange({ ...resolvedValue, badgeText })}
         autoComplete="off"
       />
-      <InlineStack gap="200" blockAlign="center">
-        <div
-          aria-hidden
-          className="h-7 w-7 rounded-[var(--p-border-radius-100)] border border-[var(--p-color-border)]"
-          style={{ backgroundColor: resolvedValue.badgeColor }}
-        />
-        <div className="flex-1">
-          <TextField
-            label="Badge color"
-            value={resolvedValue.badgeColor}
-            onChange={(badgeColor) =>
-              onChange({ ...resolvedValue, badgeColor })
-            }
-            placeholder="#7c3aed"
-            autoComplete="off"
-          />
-        </div>
-      </InlineStack>
+      <ColorInput
+        label="Badge color"
+        value={resolvedValue.badgeColor}
+        onChange={(badgeColor) => onChange({ ...resolvedValue, badgeColor })}
+        placeholder="#7c3aed"
+      />
     </BlockStack>
   ) : (
     <Text as="p" variant="bodySm" tone="subdued">
