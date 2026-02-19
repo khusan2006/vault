@@ -9,6 +9,7 @@ import {
   Divider,
 } from "@shopify/polaris";
 import type { ProductPageDisplayConfig } from "@/types";
+import { ColorInput } from "./controls";
 
 interface ProductPageConfigProps {
   value: ProductPageDisplayConfig;
@@ -65,7 +66,7 @@ export function ProductPageConfig({
             }
             autoComplete="off"
           />
-          <TextField
+          <ColorInput
             label="Badge color"
             value={value.discountBadge.color}
             onChange={(color) =>
@@ -75,7 +76,6 @@ export function ProductPageConfig({
               })
             }
             placeholder="#7c3aed"
-            autoComplete="off"
           />
         </>
       )}
@@ -109,7 +109,7 @@ export function ProductPageConfig({
             }
             autoComplete="off"
           />
-          <TextField
+          <ColorInput
             label="Background color"
             value={value.banner.bgColor}
             onChange={(bgColor) =>
@@ -119,9 +119,8 @@ export function ProductPageConfig({
               })
             }
             placeholder="#7c3aed"
-            autoComplete="off"
           />
-          <TextField
+          <ColorInput
             label="Text color"
             value={value.banner.textColor}
             onChange={(textColor) =>
@@ -131,7 +130,6 @@ export function ProductPageConfig({
               })
             }
             placeholder="#ffffff"
-            autoComplete="off"
           />
         </>
       )}
