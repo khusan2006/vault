@@ -1,6 +1,7 @@
 import type { RefObject } from "react";
 import type {
   DiscountConfig,
+  EarlyAccessStorefrontApproach,
   LandingPageDisplayConfig,
   NotificationDisplayConfig,
   ProductPageDisplayConfig,
@@ -35,5 +36,6 @@ export interface StorefrontPreviewProps {
   forceSampleProducts?: boolean;
   /** Ref to the preview container for highlight zone CSS data attribute */
   previewRef?: RefObject<HTMLDivElement | null>;
+  approach?: EarlyAccessStorefrontApproach;
 }
 

@@ -68,9 +68,8 @@ function TimerSaleCustomizerModalInner({
   const [draftConfig, setDraftConfig] =
     useState<TimerSaleDisplayConfig>(displayConfig);
   const [panel, setPanel] =
-    useState<"menu" | "theme" | "notification" | "product" | "timer">("theme");
+    useState<"menu" | "theme" | "notification" | "product" | "timer" >("menu");
   const previewRef = useRef<HTMLDivElement>(null);
-
   const handleUpdateNotification = useCallback(
     (notification: TimerSaleDisplayConfig["notification"]) => {
       setDraftConfig((prev) => {

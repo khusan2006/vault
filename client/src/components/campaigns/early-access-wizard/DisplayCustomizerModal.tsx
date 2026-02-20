@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import {
   BlockStack,
   Text,
   Button,
   InlineStack,
+  Banner,
 } from "@shopify/polaris";
 import { ChevronLeftIcon } from "@shopify/polaris-icons";
 import type {
@@ -20,6 +21,59 @@ import { StorefrontPreview } from "../preview/StorefrontPreview";
 import { CustomizerShell } from "../customizer/CustomizerShell";
 import { CustomizerPreviewPane } from "../customizer/CustomizerPreviewPane";
 import { CustomizerMenuButton } from "../customizer/CustomizerMenuButton";
+
+// =============================================================================
+// Approach-aware labels & descriptions
+// =============================================================================
+
+interface PanelMeta {
+  menuLabel: string;
+  heading: string;
+  description: string;
+}
+
+function getProductsPanelMeta(approach: EarlyAccessStorefrontApproach): PanelMeta {
+  switch (approach) {
+    case "customer_page":
+      return {
+        menuLabel: "Customer page",
+        heading: "Customer page",
+        description: "Settings for the customer account products page.",
+      };
+    case "modal":
+      return {
+        menuLabel: "Modal content",
+        heading: "Modal content",
+        description:
+          "Configure the product popup that opens when customers click the notification.",
+      };
+    case "storefront_section":
+    default:
+      return {
+        menuLabel: "Product page",
+        heading: "Product page",
+        description:
+          "Configure the landing page layout, heading, and product cards.",
+      };
+  }
+}
+
+function getApproachLabel(approach: EarlyAccessStorefrontApproach): string {
+  switch (approach) {
+    case "modal":
+      return "Pop-up modal";
+    case "storefront_section":
+      return "Storefront section";
+    case "customer_page":
+      return "Customer page";
+    default:
+      return approach;
+  }
+}
+
+// =============================================================================
+// Component
+// =============================================================================
 
 interface DisplayCustomizerModalProps {
   open: boolean;
@@ -43,61 +97,66 @@ export function DisplayCustomizerModal({
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [draftConfig, setDraftConfig] =
     useState<EarlyAccessDisplayConfig>(displayConfig);
-  const [panel, setPanel] = useState<"menu" | "theme" | "prompt" | "landing">("theme");
+  const [panel, setPanel] = useState<"menu" | "theme" | "prompt" | "landing">("menu");
   const previewRef = useRef<HTMLDivElement>(null);
+
+  const productsPanelMeta = useMemo(
+    () => getProductsPanelMeta(approach),
+    [approach],
+  );
 
   useEffect(() => {
     if (open) {
       setDraftConfig(displayConfig);
-      setPanel("theme");
+      setPanel("menu");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  const hasChanges =
+    JSON.stringify(draftConfig) !== JSON.stringify(displayConfig);
+
   const handleUpdateNotification = useCallback(
     (notification: EarlyAccessDisplayConfig["notification"]) => {
-      const nextConfig = { ...draftConfig, notification };
-      setDraftConfig(nextConfig);
-      onDisplayConfigChange(nextConfig);
+      setDraftConfig((prev) => ({ ...prev, notification }));
     },
-    [draftConfig, onDisplayConfigChange],
+    [],
   );
 
   const handleUpdateLandingPage = useCallback(
     (landingPage: EarlyAccessDisplayConfig["landingPage"]) => {
-      const nextConfig = { ...draftConfig, landingPage };
-      setDraftConfig(nextConfig);
-      onDisplayConfigChange(nextConfig);
+      setDraftConfig((prev) => ({ ...prev, landingPage }));
     },
-    [draftConfig, onDisplayConfigChange],
+    [],
   );
 
-  const handleDone = useCallback(() => {
+  const handleSave = useCallback(() => {
     onDisplayConfigChange(draftConfig);
     onClose();
   }, [draftConfig, onDisplayConfigChange, onClose]);
 
+  const handleDiscard = useCallback(() => {
+    setDraftConfig(displayConfig);
+  }, [displayConfig]);
+
   const handleReset = useCallback(() => {
     onResetToDefaults?.();
   }, [onResetToDefaults]);
-
 
   return (
     <CustomizerShell
       open={open}
       onClose={onClose}
       title="Customize appearance"
-      onPrimaryAction={handleDone}
+      primaryActionLabel="Save"
+      onPrimaryAction={handleSave}
+      secondaryActionLabel={hasChanges ? "Discard" : undefined}
+      onSecondaryAction={hasChanges ? handleDiscard : undefined}
       sidebar={
         <BlockStack gap="500">
           <InlineStack align="space-between" blockAlign="center">
             <Text as="p" tone="subdued" variant="bodySm">
-              Previewing:{" "}
-              {approach === "modal"
-                ? "Pop-up modal"
-                : approach === "storefront_section"
-                  ? "Storefront banner"
-                  : "Customer page"}
+              Approach: {getApproachLabel(approach)}
             </Text>
             {onResetToDefaults && (
               <Button size="slim" variant="plain" onClick={handleReset}>
@@ -115,16 +174,19 @@ export function DisplayCustomizerModal({
               <div className="divide-y divide-[var(--p-color-border)]">
                 <CustomizerMenuButton
                   label="Theme & styles"
+                  description="Colors, presets, and typography"
                   onClick={() => setPanel("theme")}
                 />
 
                 <CustomizerMenuButton
-                  label="Access prompt"
+                  label="Notification"
+                  description="How customers are notified"
                   onClick={() => setPanel("prompt")}
                 />
 
                 <CustomizerMenuButton
-                  label="Exclusive landing page"
+                  label={productsPanelMeta.menuLabel}
+                  description={productsPanelMeta.description}
                   onClick={() => setPanel("landing")}
                 />
               </div>
@@ -147,9 +209,7 @@ export function DisplayCustomizerModal({
                 <ThemeConfigEditor
                   value={draftConfig.theme ?? { preset: 'rounded', overrides: {} }}
                   onChange={(theme) => {
-                    const next = { ...draftConfig, theme };
-                    setDraftConfig(next);
-                    onDisplayConfigChange(next);
+                    setDraftConfig((prev) => ({ ...prev, theme }));
                   }}
                   previewRef={previewRef}
                 />
@@ -158,11 +218,10 @@ export function DisplayCustomizerModal({
               {panel === "prompt" && (
                 <BlockStack gap="200">
                   <Text variant="headingMd" as="h2">
-                    Access prompt
+                    Notification
                   </Text>
                   <Text as="p" tone="subdued">
-                    Choose how to announce early access and what customers will
-                    see.
+                    How customers are notified about exclusive access.
                   </Text>
                   <NotificationConfig
                     value={draftConfig.notification}
@@ -177,17 +236,24 @@ export function DisplayCustomizerModal({
               {panel === "landing" && (
                 <BlockStack gap="200">
                   <Text variant="headingMd" as="h2">
-                    Exclusive landing page
+                    {productsPanelMeta.heading}
                   </Text>
                   <Text as="p" tone="subdued">
-                    Customize the page layout, heading, and badges.
+                    {productsPanelMeta.description}
                   </Text>
+                  {approach === "customer_page" && (
+                    <Banner tone="info">
+                      Product card styling is managed by Shopify's customer
+                      account theme. Only layout and text settings apply here.
+                    </Banner>
+                  )}
                   <LandingPageConfig
                     value={draftConfig.landingPage}
                     onChange={handleUpdateLandingPage}
                     layout="plain"
                     showHeading={false}
                     grouping="flat"
+                    approach={approach}
                   />
                 </BlockStack>
               )}
@@ -205,6 +271,7 @@ export function DisplayCustomizerModal({
             device={device}
             products={products}
             previewRef={previewRef}
+            approach={approach}
           />
         </CustomizerPreviewPane>
       }

@@ -68,7 +68,7 @@ function DiscountedProductCustomizerModalInner({
   const [draftConfig, setDraftConfig] =
     useState<DiscountedProductDisplayConfig>(displayConfig);
   const [panel, setPanel] =
-    useState<"menu" | "theme" | "notification" | "landing" | "product">("theme");
+    useState<"menu" | "theme" | "notification" | "landing" | "product">("menu");
   const previewRef = useRef<HTMLDivElement>(null);
 
   const handleUpdateNotification = useCallback(
@@ -151,7 +151,8 @@ function DiscountedProductCustomizerModalInner({
                 />
 
                 <CustomizerMenuButton
-                  label="Offer prompt"
+                  label="Notification"
+                  description="How customers are notified about offers"
                   onClick={() => setPanel("notification")}
                 />
 

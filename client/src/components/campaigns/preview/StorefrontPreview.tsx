@@ -9,14 +9,16 @@ import { MOCK_PRODUCTS } from "@/constants/storefront-preview";
 import { ensureWebComponents } from "@/utils/storefront-preview";
 import { resolveTokens, tokensToCSS } from "@vault/shared/theme/tokens";
 import { MockStorefrontHeader } from "./MockStorefrontHeader";
-import { NotificationPreview } from "./NotificationPreview";
+import {
+  NotificationPreview,
+  isOverlayNotification,
+} from "./NotificationPreview";
 import { ProductPagePreview } from "./ProductPagePreview";
 import { LandingPagePreview } from "./LandingPagePreview";
+import { ProductsModalPreview } from "./ProductsModalPreview";
 
 /**
  * Highlight zone styles applied via CSS data attribute on the preview container.
- * Using `[data-highlight-zone]` selectors avoids React state re-renders that
- * trigger Polaris Popover portal access in cross-origin iframe contexts.
  */
 const HIGHLIGHT_ZONE_STYLES = `
   [data-highlight-zone] [data-zone] {
@@ -39,6 +41,7 @@ export function StorefrontPreview({
   discount,
   forceSampleProducts = true,
   previewRef,
+  approach,
 }: StorefrontPreviewProps) {
   useEffect(() => {
     ensureWebComponents();
@@ -56,10 +59,11 @@ export function StorefrontPreview({
         showRatings: landingPage.showRatings ?? true,
       }
     : null;
-  const bannerAtTop =
-    notification.type === "banner" && notification.visuals.position === "top";
-  const bannerAtBottom =
-    notification.type === "banner" && notification.visuals.position !== "top";
+
+  const isBanner = notification.type === "banner";
+  const bannerAtTop = isBanner && notification.visuals.position === "top";
+  const bannerAtBottom = isBanner && notification.visuals.position !== "top";
+  const isOverlay = isOverlayNotification(notification.type);
   const bottomPadding = bannerAtBottom ? (isMobile ? 80 : 64) : 0;
 
   const theme = config.theme;
@@ -76,6 +80,8 @@ export function StorefrontPreview({
     : MOCK_PRODUCTS;
 
   const primaryProduct = previewProducts[0] ?? MOCK_PRODUCTS[0];
+
+  const isModalApproach = approach === "modal";
   const resolvedView =
     view === "landing" && resolvedLanding ? "landing" : "product";
 
@@ -90,21 +96,21 @@ export function StorefrontPreview({
           isMobile ? "w-[375px] rounded-[24px]" : "w-full rounded-[8px]"
         }`}
       >
+        {/* Top banner */}
         {bannerAtTop && (
           <div data-zone="notifications">
             <NotificationPreview config={notification} />
           </div>
         )}
+
         <MockStorefrontHeader mobile={isMobile} />
+
+        {/* Scrollable content area — relative for overlay notifications */}
         <div
           className="relative flex-1 overflow-y-auto"
           style={{ paddingBottom: bottomPadding }}
         >
-          {notification.type !== "banner" && (
-            <div data-zone="notifications">
-              <NotificationPreview config={notification} />
-            </div>
-          )}
+          {/* Main page content */}
           <div
             data-zone="layout"
             className={`mx-auto max-w-[1200px] ${
@@ -115,7 +121,13 @@ export function StorefrontPreview({
               maxWidth: 'var(--vault-page-max-width, 1200px)',
             }}
           >
-            {resolvedView === "landing" && resolvedLanding ? (
+            {isModalApproach && resolvedLanding ? (
+              <ProductsModalPreview
+                config={resolvedLanding}
+                products={previewProducts}
+                isMobile={isMobile}
+              />
+            ) : resolvedView === "landing" && resolvedLanding ? (
               <LandingPagePreview
                 config={resolvedLanding}
                 products={previewProducts}
@@ -131,8 +143,16 @@ export function StorefrontPreview({
               />
             )}
           </div>
+
+          {/* Overlay notifications (modal, toast, badge) — positioned within scroll area */}
+          {isOverlay && (
+            <div data-zone="notifications">
+              <NotificationPreview config={notification} />
+            </div>
+          )}
         </div>
 
+        {/* Bottom banner */}
         {bannerAtBottom && (
           <div data-zone="notifications">
             <NotificationPreview config={notification} />

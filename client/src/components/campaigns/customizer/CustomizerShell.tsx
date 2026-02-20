@@ -10,6 +10,8 @@ interface CustomizerShellProps {
   title: string;
   primaryActionLabel?: string;
   onPrimaryAction?: () => void;
+  secondaryActionLabel?: string;
+  onSecondaryAction?: () => void;
   sidebar: ReactNode;
   preview: ReactNode;
 }
@@ -20,12 +22,19 @@ export function CustomizerShell({
   title,
   primaryActionLabel = "Done",
   onPrimaryAction,
+  secondaryActionLabel,
+  onSecondaryAction,
   sidebar,
   preview,
 }: CustomizerShellProps) {
   return (
     <AppBridgeModal open={open} onHide={onClose} variant="max">
       <ui-title-bar title={title}>
+        {onSecondaryAction && (
+          <button onClick={onSecondaryAction}>
+            {secondaryActionLabel ?? "Discard"}
+          </button>
+        )}
         <button variant="primary" onClick={onPrimaryAction ?? onClose}>
           {primaryActionLabel}
         </button>

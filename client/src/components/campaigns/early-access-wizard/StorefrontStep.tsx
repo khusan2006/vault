@@ -103,11 +103,11 @@ const APPROACH_OPTIONS: ApproachOption[] = [
     icon: LayoutPopupIcon,
     title: "Pop-up modal",
     description:
-      "Show a popup when qualifying customers visit your store, inviting them to browse exclusive products.",
+      "Show exclusive products in a popup overlay. Customers click a notification to browse products without leaving the page.",
     details: [
-      "Popup appears on store visit",
-      "Eye-catching and hard to miss",
-      "Configurable frequency and triggers",
+      "Products displayed in a modal popup",
+      "Notification CTA opens the product gallery",
+      "Great for showcasing without page navigation",
     ],
     gradientClassName: "bg-gradient-to-br from-[#fef3c7] to-[#fbbf24]",
     iconTone: "caution",
@@ -125,9 +125,14 @@ function buildDefaultDisplayConfig(
   const landingPage = { ...DEFAULT_LANDING_PAGE };
 
   if (approach === "modal") {
-    notification.type = "modal";
+    // Modal approach: notification CTA opens a product-display popup.
+    // Use banner (not modal notification) so it doesn't conflict with
+    // the products modal that opens on CTA click.
+    notification.type = "banner";
     notification.message =
       "You have exclusive early access! Browse products available only to you.";
+    notification.buttonText = "View Exclusive Products";
+    notification.buttonUrl = "#vault-products-modal";
     notification.behavior = {
       ...notification.behavior,
       showFrequency: "once_per_session",
@@ -421,7 +426,7 @@ export function StorefrontStep({
                   </Text>
                   <BlockStack gap="100">
                     <Text as="p" variant="bodySm" tone="subdued">
-                      Access prompt: {summary.notificationSummary}
+                      Notification: {summary.notificationSummary}
                     </Text>
                     <Text as="p" variant="bodySm" tone="subdued">
                       Landing page: {summary.landingSummary}
@@ -485,6 +490,7 @@ export function StorefrontStep({
                 config={config.displayConfig}
                 device={previewDevice}
                 products={selectedProducts}
+                approach={selectedApproach}
               />
             </div>
           </BlockStack>

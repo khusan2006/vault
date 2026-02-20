@@ -62,7 +62,7 @@ export function getCampaignIndex(): CampaignIndex {
 
   const idx: CampaignIndex = {};
   for (const c of list) {
-    if (c && c.id) idx[cleanId(c.id)] = c;
+    if (c && c.id && (!c.status || c.status === 'active')) idx[cleanId(c.id)] = c;
   }
   CAMPAIGN_INDEX = idx;
   return idx;

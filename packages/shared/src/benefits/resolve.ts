@@ -7,6 +7,7 @@ export interface CampaignIndexEntry {
   type: CampaignType;
   config?: CampaignConfig;
   priority?: number;
+  status?: string;
 }
 
 /** Index of campaigns keyed by cleaned ID. */

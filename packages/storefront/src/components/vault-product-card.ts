@@ -5,7 +5,6 @@ import cardStyles from './vault-product-card.styles';
 let stylesInjected = false;
 
 function injectStyles() {
-  console.log('hello world')
   if (stylesInjected) return;
   const style = document.createElement('style');
   style.textContent = cardStyles;

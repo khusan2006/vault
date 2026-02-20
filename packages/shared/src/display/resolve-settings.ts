@@ -20,6 +20,8 @@ export interface NotificationSettings {
     autoDismissSeconds: number | null;
     showFrequency: string;
   };
+  /** The storefront approach (early_access only). Used to drive CTA behavior. */
+  storefrontApproach?: string;
 }
 
 function val<T>(v: T | undefined | null, def: T): T {
@@ -53,16 +55,24 @@ export function resolveSettings(
       behavior: (n.behavior as NotificationSettings['behavior']) || base.behavior,
     };
 
-    // Early access: if storefrontApproach is customer_page, update button URL
+    // Early access: adjust based on storefrontApproach
     const campConfig = resolved.config;
     if (
       type === 'early_access' &&
       campConfig &&
-      'storefrontApproach' in campConfig &&
-      campConfig.storefrontApproach === 'customer_page'
+      'storefrontApproach' in campConfig
     ) {
-      if (!cfg.buttonUrl || cfg.buttonUrl === '/apps/vault/exclusive') {
-        cfg.buttonUrl = '/account';
+      const approach = campConfig.storefrontApproach as string;
+      cfg.storefrontApproach = approach;
+
+      if (approach === 'customer_page') {
+        if (!cfg.buttonUrl || cfg.buttonUrl === '/apps/vault/exclusive') {
+          cfg.buttonUrl = '/account';
+        }
+      } else if (approach === 'modal') {
+        if (!cfg.buttonUrl || cfg.buttonUrl === '/apps/vault/exclusive') {
+          cfg.buttonUrl = '#vault-products-modal';
+        }
       }
     }
 

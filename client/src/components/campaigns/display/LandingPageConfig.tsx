@@ -10,7 +10,7 @@ import {
   Checkbox,
   Divider,
 } from "@shopify/polaris";
-import type { LandingPageDisplayConfig } from "@/types";
+import type { LandingPageDisplayConfig, EarlyAccessStorefrontApproach } from "@/types";
 import { AccordionSection } from "./AccordionSection";
 import { ColorInput } from "./controls";
 
@@ -32,6 +32,7 @@ interface LandingPageConfigProps {
   layout?: "card" | "plain";
   showHeading?: boolean;
   grouping?: "accordion" | "flat";
+  approach?: EarlyAccessStorefrontApproach;
 }
 
 export function LandingPageConfig({
@@ -40,6 +41,7 @@ export function LandingPageConfig({
   layout = "card",
   showHeading = true,
   grouping = "accordion",
+  approach,
 }: LandingPageConfigProps) {
   const resolvedValue: LandingPageDisplayConfig = {
     ...value,
@@ -56,10 +58,17 @@ export function LandingPageConfig({
     items: false,
   });
 
+  // Customer page approach: limited settings (Shopify controls card styling)
+  const isCustomerPage = approach === "customer_page";
+
   const basicsFields = (
     <BlockStack gap="300">
       <Checkbox
-        label="Show products on exclusive landing page"
+        label={
+          isCustomerPage
+            ? "Show products on customer account page"
+            : "Show products on exclusive landing page"
+        }
         checked={resolvedValue.enabled}
         onChange={(enabled) => onChange({ ...resolvedValue, enabled })}
       />
@@ -78,7 +87,11 @@ export function LandingPageConfig({
               onChange({ ...resolvedValue, subheading })
             }
             autoComplete="off"
-            helpText="Explain who can access these products and why."
+            helpText={
+              isCustomerPage
+                ? "Displayed at the top of the customer account products section."
+                : "Explain who can access these products and why."
+            }
           />
         </>
       )}
@@ -99,7 +112,7 @@ export function LandingPageConfig({
     />
   ) : (
     <Text as="p" variant="bodySm" tone="subdued">
-      Enable the landing page to adjust layout.
+      Enable the page to adjust layout.
     </Text>
   );
 
@@ -120,7 +133,7 @@ export function LandingPageConfig({
     </BlockStack>
   ) : (
     <Text as="p" variant="bodySm" tone="subdued">
-      Enable the landing page to customize badges.
+      Enable the page to customize badges.
     </Text>
   );
 
@@ -170,7 +183,7 @@ export function LandingPageConfig({
     </BlockStack>
   ) : (
     <Text as="p" variant="bodySm" tone="subdued">
-      Enable the landing page to customize product cards.
+      Enable the page to customize product cards.
     </Text>
   );
 
@@ -189,7 +202,7 @@ export function LandingPageConfig({
         <BlockStack gap="300">
           <AccordionSection
             title="Basics"
-            description="Show or hide the landing page section"
+            description="Show or hide the page section"
             open={sectionsOpen.basics}
             onToggle={() =>
               setSectionsOpen((prev) => ({ ...prev, basics: !prev.basics }))
@@ -210,29 +223,33 @@ export function LandingPageConfig({
             {layoutFields}
           </AccordionSection>
 
-          <AccordionSection
-            title="Badge"
-            description="Badge label and color"
-            open={sectionsOpen.badge}
-            onToggle={() =>
-              setSectionsOpen((prev) => ({ ...prev, badge: !prev.badge }))
-            }
-            disabled={!value.enabled}
-          >
-            {badgeFields}
-          </AccordionSection>
+          {!isCustomerPage && (
+            <AccordionSection
+              title="Badge"
+              description="Badge label and color"
+              open={sectionsOpen.badge}
+              onToggle={() =>
+                setSectionsOpen((prev) => ({ ...prev, badge: !prev.badge }))
+              }
+              disabled={!value.enabled}
+            >
+              {badgeFields}
+            </AccordionSection>
+          )}
 
-          <AccordionSection
-            title="Product cards"
-            description="Layout and details"
-            open={sectionsOpen.items}
-            onToggle={() =>
-              setSectionsOpen((prev) => ({ ...prev, items: !prev.items }))
-            }
-            disabled={!value.enabled}
-          >
-            {itemFields}
-          </AccordionSection>
+          {!isCustomerPage && (
+            <AccordionSection
+              title="Product cards"
+              description="Layout and details"
+              open={sectionsOpen.items}
+              onToggle={() =>
+                setSectionsOpen((prev) => ({ ...prev, items: !prev.items }))
+              }
+              disabled={!value.enabled}
+            >
+              {itemFields}
+            </AccordionSection>
+          )}
         </BlockStack>
       ) : (
         <BlockStack gap="400">
@@ -243,6 +260,8 @@ export function LandingPageConfig({
             {basicsFields}
           </BlockStack>
 
+          <Divider />
+
           <BlockStack gap="200">
             <Text as="p" variant="bodyMd" fontWeight="semibold">
               Layout
@@ -250,19 +269,29 @@ export function LandingPageConfig({
             {layoutFields}
           </BlockStack>
 
-          <BlockStack gap="200">
-            <Text as="p" variant="bodyMd" fontWeight="semibold">
-              Badge
-            </Text>
-            {badgeFields}
-          </BlockStack>
+          {!isCustomerPage && (
+            <>
+              <Divider />
+              <BlockStack gap="200">
+                <Text as="p" variant="bodyMd" fontWeight="semibold">
+                  Badge
+                </Text>
+                {badgeFields}
+              </BlockStack>
+            </>
+          )}
 
-          <BlockStack gap="200">
-            <Text as="p" variant="bodyMd" fontWeight="semibold">
-              Product cards
-            </Text>
-            {itemFields}
-          </BlockStack>
+          {!isCustomerPage && (
+            <>
+              <Divider />
+              <BlockStack gap="200">
+                <Text as="p" variant="bodyMd" fontWeight="semibold">
+                  Product cards
+                </Text>
+                {itemFields}
+              </BlockStack>
+            </>
+          )}
         </BlockStack>
       )}
     </BlockStack>

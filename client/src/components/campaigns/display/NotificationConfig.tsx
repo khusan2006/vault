@@ -323,14 +323,18 @@ export function NotificationConfig({
           </BlockStack>
 
           {supportsButton && (
-            <BlockStack gap="200">
-              <Text as="p" variant="bodyMd" fontWeight="semibold">
-                Call to action
-              </Text>
-              {ctaFields}
-            </BlockStack>
+            <>
+              <Divider />
+              <BlockStack gap="200">
+                <Text as="p" variant="bodyMd" fontWeight="semibold">
+                  Call to action
+                </Text>
+                {ctaFields}
+              </BlockStack>
+            </>
           )}
 
+          <Divider />
           <BlockStack gap="200">
             <Text as="p" variant="bodyMd" fontWeight="semibold">
               Appearance
@@ -338,6 +342,7 @@ export function NotificationConfig({
             {appearanceFields}
           </BlockStack>
 
+          <Divider />
           <BlockStack gap="200">
             <Text as="p" variant="bodyMd" fontWeight="semibold">
               Behavior

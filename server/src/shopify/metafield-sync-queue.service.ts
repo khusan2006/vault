@@ -135,7 +135,7 @@ export class MetafieldSyncQueueService
 
   private async syncCampaignMetafields(shopId: string): Promise<void> {
     const campaigns = await this.campaignRepository.find({
-      where: { shopId },
+      where: { shopId, status: 'active' },
       order: { priority: 'DESC', createdAt: 'DESC' },
     });
 

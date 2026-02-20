@@ -5,6 +5,7 @@ import './components/vault-toast';
 import './components/vault-badge';
 import './components/vault-timer';
 import './components/vault-product-card';
+import './components/vault-products-modal';
 
 // Main orchestrator
 import { init } from './init';
