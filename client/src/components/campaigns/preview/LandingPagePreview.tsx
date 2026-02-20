@@ -28,7 +28,7 @@ export function LandingPagePreview({
         <h2
           style={{
             fontSize: 'var(--vault-title-size, 28px)',
-            fontWeight: 700,
+            fontWeight: 'var(--vault-title-weight, 600)',
             color: 'var(--vault-title-color, #18181b)',
             margin: "0 0 8px",
             lineHeight: 1.3,
@@ -40,6 +40,7 @@ export function LandingPagePreview({
           style={{
             fontSize: 'var(--vault-subtitle-size, 16px)',
             color: 'var(--vault-subtitle-color, #6b7280)',
+            fontWeight: 'var(--vault-subtitle-weight, 400)',
             margin: 0,
           }}
         >
@@ -73,4 +74,3 @@ export function LandingPagePreview({
     </div>
   );
 }
-

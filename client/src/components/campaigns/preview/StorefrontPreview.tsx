@@ -144,9 +144,9 @@ export function StorefrontPreview({
             )}
           </div>
 
-          {/* Overlay notifications (modal, toast, badge) — positioned within scroll area */}
+          {/* Overlay notifications (modal, toast, badge) */}
           {isOverlay && (
-            <div data-zone="notifications">
+            <div className="absolute inset-0" data-zone="notifications">
               <NotificationPreview config={notification} />
             </div>
           )}

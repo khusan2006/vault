@@ -66,7 +66,7 @@ export default `
 
 .v-pm__title {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: var(--vault-title-weight, 600);
   color: #18181b;
   line-height: 1.3;
   margin: 0;
@@ -75,6 +75,7 @@ export default `
 .v-pm__subtitle {
   font-size: 14px;
   color: #6b7280;
+  font-weight: var(--vault-subtitle-weight, 400);
   line-height: 1.4;
   margin: 4px 0 0;
 }

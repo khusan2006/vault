@@ -62,12 +62,18 @@ function CompactProductCard({
             {product.category}
           </span>
         )}
-        <span className="text-[11px] font-semibold leading-tight text-zinc-900 line-clamp-1">
+        <span
+          className="text-[11px] leading-tight text-zinc-900 line-clamp-1"
+          style={{ fontWeight: "var(--vault-card-title-weight, 600)" }}
+        >
           {product.title}
         </span>
         {hasPrices && (
           <div className="mt-auto flex items-baseline gap-1 pt-1">
-            <span className="text-[11px] font-bold text-zinc-900">
+            <span
+              className="text-[11px] text-zinc-900"
+              style={{ fontWeight: "var(--vault-card-price-weight, 600)" }}
+            >
               {product.price}
             </span>
             {showCompareAt && product.compareAt && (
@@ -151,10 +157,16 @@ export function ProductsModalPreview({
 
           {/* Title + subtitle */}
           <div className="min-w-0 flex-1">
-            <h3 className="m-0 text-[14px] font-bold leading-tight text-zinc-900">
+            <h3
+              className="m-0 text-[14px] leading-tight text-zinc-900"
+              style={{ fontWeight: "var(--vault-title-weight, 600)" }}
+            >
               {config.heading || "Exclusive Products"}
             </h3>
-            <p className="m-0 mt-0.5 text-[11px] leading-snug text-gray-400">
+            <p
+              className="m-0 mt-0.5 text-[11px] leading-snug text-gray-400"
+              style={{ fontWeight: "var(--vault-subtitle-weight, 400)" }}
+            >
               {config.subheading || `${products.length} product${products.length !== 1 ? "s" : ""} available`}
             </p>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   Card,
   BlockStack,
@@ -33,6 +33,7 @@ interface LandingPageConfigProps {
   showHeading?: boolean;
   grouping?: "accordion" | "flat";
   approach?: EarlyAccessStorefrontApproach;
+  sections?: Array<"basics" | "layout" | "badge" | "items">;
 }
 
 export function LandingPageConfig({
@@ -42,6 +43,7 @@ export function LandingPageConfig({
   showHeading = true,
   grouping = "accordion",
   approach,
+  sections,
 }: LandingPageConfigProps) {
   const resolvedValue: LandingPageDisplayConfig = {
     ...value,
@@ -60,6 +62,11 @@ export function LandingPageConfig({
 
   // Customer page approach: limited settings (Shopify controls card styling)
   const isCustomerPage = approach === "customer_page";
+  const visibleSections = sections ?? ["basics", "layout", "badge", "items"];
+  const showBasics = visibleSections.includes("basics");
+  const showLayout = visibleSections.includes("layout");
+  const showBadge = visibleSections.includes("badge");
+  const showItems = visibleSections.includes("items");
 
   const basicsFields = (
     <BlockStack gap="300">
@@ -200,30 +207,34 @@ export function LandingPageConfig({
 
       {grouping === "accordion" ? (
         <BlockStack gap="300">
-          <AccordionSection
-            title="Basics"
-            description="Show or hide the page section"
-            open={sectionsOpen.basics}
-            onToggle={() =>
-              setSectionsOpen((prev) => ({ ...prev, basics: !prev.basics }))
-            }
-          >
-            {basicsFields}
-          </AccordionSection>
+          {showBasics && (
+            <AccordionSection
+              title="Basics"
+              description="Show or hide the page section"
+              open={sectionsOpen.basics}
+              onToggle={() =>
+                setSectionsOpen((prev) => ({ ...prev, basics: !prev.basics }))
+              }
+            >
+              {basicsFields}
+            </AccordionSection>
+          )}
 
-          <AccordionSection
-            title="Layout"
-            description="Grid and spacing"
-            open={sectionsOpen.layout}
-            onToggle={() =>
-              setSectionsOpen((prev) => ({ ...prev, layout: !prev.layout }))
-            }
-            disabled={!value.enabled}
-          >
-            {layoutFields}
-          </AccordionSection>
+          {showLayout && (
+            <AccordionSection
+              title="Layout"
+              description="Grid and spacing"
+              open={sectionsOpen.layout}
+              onToggle={() =>
+                setSectionsOpen((prev) => ({ ...prev, layout: !prev.layout }))
+              }
+              disabled={!value.enabled}
+            >
+              {layoutFields}
+            </AccordionSection>
+          )}
 
-          {!isCustomerPage && (
+          {!isCustomerPage && showBadge && (
             <AccordionSection
               title="Badge"
               description="Badge label and color"
@@ -237,7 +248,7 @@ export function LandingPageConfig({
             </AccordionSection>
           )}
 
-          {!isCustomerPage && (
+          {!isCustomerPage && showItems && (
             <AccordionSection
               title="Product cards"
               description="Layout and details"
@@ -253,45 +264,39 @@ export function LandingPageConfig({
         </BlockStack>
       ) : (
         <BlockStack gap="400">
-          <BlockStack gap="200">
-            <Text as="p" variant="bodyMd" fontWeight="semibold">
-              Basics
-            </Text>
-            {basicsFields}
-          </BlockStack>
-
-          <Divider />
-
-          <BlockStack gap="200">
-            <Text as="p" variant="bodyMd" fontWeight="semibold">
-              Layout
-            </Text>
-            {layoutFields}
-          </BlockStack>
-
-          {!isCustomerPage && (
-            <>
-              <Divider />
-              <BlockStack gap="200">
-                <Text as="p" variant="bodyMd" fontWeight="semibold">
-                  Badge
-                </Text>
-                {badgeFields}
-              </BlockStack>
-            </>
-          )}
-
-          {!isCustomerPage && (
-            <>
-              <Divider />
-              <BlockStack gap="200">
-                <Text as="p" variant="bodyMd" fontWeight="semibold">
-                  Product cards
-                </Text>
-                {itemFields}
-              </BlockStack>
-            </>
-          )}
+          {[
+            showBasics
+              ? { key: "basics", label: "Basics", fields: basicsFields }
+              : null,
+            showLayout
+              ? { key: "layout", label: "Layout", fields: layoutFields }
+              : null,
+            !isCustomerPage && showBadge
+              ? { key: "badge", label: "Badge", fields: badgeFields }
+              : null,
+            !isCustomerPage && showItems
+              ? { key: "items", label: "Product cards", fields: itemFields }
+              : null,
+          ]
+            .filter(Boolean)
+            .map((section, index) => {
+              const data = section as {
+                key: string;
+                label: string;
+                fields: JSX.Element;
+              };
+              return (
+                <Fragment key={data.key}>
+                  {index > 0 && <Divider />}
+                  <BlockStack gap="200">
+                    <Text as="p" variant="bodyMd" fontWeight="semibold">
+                      {data.label}
+                    </Text>
+                    {data.fields}
+                  </BlockStack>
+                </Fragment>
+              );
+            })}
         </BlockStack>
       )}
     </BlockStack>

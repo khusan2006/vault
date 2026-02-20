@@ -16,7 +16,15 @@ import type {
 import type { SelectedResource } from "@/hooks/useResourcePicker";
 import { NotificationConfig } from "../display/NotificationConfig";
 import { LandingPageConfig } from "../display/LandingPageConfig";
-import { ThemeConfigEditor } from "../display";
+import {
+  ThemePresetPicker,
+  ThemeCardStyleSection,
+  ThemeCardTypographySection,
+  ThemeGridSpacingSection,
+  ThemePageLayoutSection,
+  ThemeSectionTypographySection,
+  ThemeNotificationStyleSection,
+} from "../display";
 import { StorefrontPreview } from "../preview/StorefrontPreview";
 import { CustomizerShell } from "../customizer/CustomizerShell";
 import { CustomizerPreviewPane } from "../customizer/CustomizerPreviewPane";
@@ -32,28 +40,57 @@ interface PanelMeta {
   description: string;
 }
 
-function getProductsPanelMeta(approach: EarlyAccessStorefrontApproach): PanelMeta {
+function getSectionPanelMeta(
+  approach: EarlyAccessStorefrontApproach,
+): PanelMeta {
   switch (approach) {
-    case "customer_page":
-      return {
-        menuLabel: "Customer page",
-        heading: "Customer page",
-        description: "Settings for the customer account products page.",
-      };
     case "modal":
       return {
-        menuLabel: "Modal content",
-        heading: "Modal content",
+        menuLabel: "Modal appearance",
+        heading: "Modal appearance",
         description:
-          "Configure the product popup that opens when customers click the notification.",
+          "Layout, headings, and spacing for the modal content.",
+      };
+    case "customer_page":
+      return {
+        menuLabel: "Section settings",
+        heading: "Section settings",
+        description:
+          "Layout and headings for the customer account products section.",
       };
     case "storefront_section":
     default:
       return {
-        menuLabel: "Product page",
-        heading: "Product page",
+        menuLabel: "Section settings",
+        heading: "Section settings",
         description:
-          "Configure the landing page layout, heading, and product cards.",
+          "Layout and headings for the exclusive products section.",
+      };
+  }
+}
+
+function getCardsPanelMeta(
+  approach: EarlyAccessStorefrontApproach,
+): PanelMeta {
+  switch (approach) {
+    case "modal":
+      return {
+        menuLabel: "Product cards",
+        heading: "Product cards",
+        description: "Card layout and styling inside the modal.",
+      };
+    case "customer_page":
+      return {
+        menuLabel: "Product cards",
+        heading: "Product cards",
+        description: "Product card options for the customer account page.",
+      };
+    case "storefront_section":
+    default:
+      return {
+        menuLabel: "Product cards",
+        heading: "Product cards",
+        description: "Card layout and styling for exclusive products.",
       };
   }
 }
@@ -97,11 +134,17 @@ export function DisplayCustomizerModal({
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [draftConfig, setDraftConfig] =
     useState<EarlyAccessDisplayConfig>(displayConfig);
-  const [panel, setPanel] = useState<"menu" | "theme" | "prompt" | "landing">("menu");
+  const [panel, setPanel] =
+    useState<"menu" | "notification" | "section" | "cards">("menu");
   const previewRef = useRef<HTMLDivElement>(null);
+  const themeValue = draftConfig.theme ?? { preset: "rounded", overrides: {} };
 
-  const productsPanelMeta = useMemo(
-    () => getProductsPanelMeta(approach),
+  const sectionPanelMeta = useMemo(
+    () => getSectionPanelMeta(approach),
+    [approach],
+  );
+  const cardsPanelMeta = useMemo(
+    () => getCardsPanelMeta(approach),
     [approach],
   );
 
@@ -129,6 +172,10 @@ export function DisplayCustomizerModal({
     },
     [],
   );
+
+  const handleUpdateTheme = useCallback((theme: EarlyAccessDisplayConfig["theme"]) => {
+    setDraftConfig((prev) => ({ ...prev, theme }));
+  }, []);
 
   const handleSave = useCallback(() => {
     onDisplayConfigChange(draftConfig);
@@ -173,21 +220,21 @@ export function DisplayCustomizerModal({
 
               <div className="divide-y divide-[var(--p-color-border)]">
                 <CustomizerMenuButton
-                  label="Theme & styles"
-                  description="Colors, presets, and typography"
-                  onClick={() => setPanel("theme")}
-                />
-
-                <CustomizerMenuButton
                   label="Notification"
                   description="How customers are notified"
-                  onClick={() => setPanel("prompt")}
+                  onClick={() => setPanel("notification")}
                 />
 
                 <CustomizerMenuButton
-                  label={productsPanelMeta.menuLabel}
-                  description={productsPanelMeta.description}
-                  onClick={() => setPanel("landing")}
+                  label={sectionPanelMeta.menuLabel}
+                  description={sectionPanelMeta.description}
+                  onClick={() => setPanel("section")}
+                />
+
+                <CustomizerMenuButton
+                  label={cardsPanelMeta.menuLabel}
+                  description={cardsPanelMeta.description}
+                  onClick={() => setPanel("cards")}
                 />
               </div>
             </BlockStack>
@@ -205,17 +252,7 @@ export function DisplayCustomizerModal({
                 </Button>
               </InlineStack>
 
-              {panel === "theme" && (
-                <ThemeConfigEditor
-                  value={draftConfig.theme ?? { preset: 'rounded', overrides: {} }}
-                  onChange={(theme) => {
-                    setDraftConfig((prev) => ({ ...prev, theme }));
-                  }}
-                  previewRef={previewRef}
-                />
-              )}
-
-              {panel === "prompt" && (
+              {panel === "notification" && (
                 <BlockStack gap="200">
                   <Text variant="headingMd" as="h2">
                     Notification
@@ -230,16 +267,55 @@ export function DisplayCustomizerModal({
                     showHeading={false}
                     grouping="flat"
                   />
+                  <ThemeNotificationStyleSection
+                    value={themeValue}
+                    onChange={handleUpdateTheme}
+                    previewRef={previewRef}
+                  />
                 </BlockStack>
               )}
 
-              {panel === "landing" && (
+              {panel === "section" && (
                 <BlockStack gap="200">
                   <Text variant="headingMd" as="h2">
-                    {productsPanelMeta.heading}
+                    {sectionPanelMeta.heading}
                   </Text>
                   <Text as="p" tone="subdued">
-                    {productsPanelMeta.description}
+                    {sectionPanelMeta.description}
+                  </Text>
+                  <ThemePresetPicker
+                    value={themeValue}
+                    onChange={handleUpdateTheme}
+                  />
+                  <LandingPageConfig
+                    value={draftConfig.landingPage}
+                    onChange={handleUpdateLandingPage}
+                    layout="plain"
+                    showHeading={false}
+                    grouping="flat"
+                    approach={approach}
+                    sections={["basics", "layout"]}
+                  />
+                  <ThemePageLayoutSection
+                    value={themeValue}
+                    onChange={handleUpdateTheme}
+                    previewRef={previewRef}
+                  />
+                  <ThemeSectionTypographySection
+                    value={themeValue}
+                    onChange={handleUpdateTheme}
+                    previewRef={previewRef}
+                  />
+                </BlockStack>
+              )}
+
+              {panel === "cards" && (
+                <BlockStack gap="200">
+                  <Text variant="headingMd" as="h2">
+                    {cardsPanelMeta.heading}
+                  </Text>
+                  <Text as="p" tone="subdued">
+                    {cardsPanelMeta.description}
                   </Text>
                   {approach === "customer_page" && (
                     <Banner tone="info">
@@ -254,7 +330,28 @@ export function DisplayCustomizerModal({
                     showHeading={false}
                     grouping="flat"
                     approach={approach}
+                    sections={["badge", "items"]}
                   />
+                  {approach !== "customer_page" && (
+                    <>
+                      <ThemeCardStyleSection
+                        value={themeValue}
+                        onChange={handleUpdateTheme}
+                        previewRef={previewRef}
+                        title="Card styles"
+                      />
+                      <ThemeCardTypographySection
+                        value={themeValue}
+                        onChange={handleUpdateTheme}
+                        previewRef={previewRef}
+                      />
+                      <ThemeGridSpacingSection
+                        value={themeValue}
+                        onChange={handleUpdateTheme}
+                        previewRef={previewRef}
+                      />
+                    </>
+                  )}
                 </BlockStack>
               )}
             </BlockStack>

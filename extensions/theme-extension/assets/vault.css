@@ -9,8 +9,8 @@
    ========================================================================== */
 .v-excl{max-width:var(--vault-page-max-width,1200px);margin:0 auto;padding:var(--vault-page-padding,40px 20px)}
 .v-excl__header{text-align:center;margin-bottom:var(--vault-header-spacing,40px)}
-.v-excl__title{font-size:var(--vault-title-size,28px);font-weight:700;color:var(--vault-title-color,#18181b);margin:0 0 8px}
-.v-excl__sub{font-size:var(--vault-subtitle-size,16px);color:var(--vault-subtitle-color,#6b7280);margin:0}
+.v-excl__title{font-size:var(--vault-title-size,28px);font-weight:var(--vault-title-weight,600);color:var(--vault-title-color,#18181b);margin:0 0 8px}
+.v-excl__sub{font-size:var(--vault-subtitle-size,16px);font-weight:var(--vault-subtitle-weight,400);color:var(--vault-subtitle-color,#6b7280);margin:0}
 
 /* Dynamic grid: columns set by JS via --vault-cols custom property */
 .v-excl__grid{

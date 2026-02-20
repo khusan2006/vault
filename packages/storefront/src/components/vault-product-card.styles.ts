@@ -79,7 +79,7 @@ export default `
 
 .v-card__title {
   font-size: var(--vault-card-title-size, 14px);
-  font-weight: 600;
+  font-weight: var(--vault-card-title-weight, 600);
   color: var(--vault-card-title-color, #0f172a);
   margin: 0;
   line-height: 1.3;
@@ -93,7 +93,7 @@ export default `
 .v-card__price {
   font-size: var(--vault-card-price-size, 14px);
   color: var(--vault-card-price-color, #0f172a);
-  font-weight: 600;
+  font-weight: var(--vault-card-price-weight, 600);
   margin: 0;
 }
 
