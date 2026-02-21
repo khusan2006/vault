@@ -1,2 +1,9 @@
 export { PRESETS } from './presets';
-export { resolveTokens, tokensToCSS, defaultTokens } from './tokens';
+export {
+  DEFAULT_THEME_PRESET,
+  DEFAULT_THEME_CONFIG,
+  resolveThemeConfig,
+  resolveTokens,
+  tokensToCSS,
+  defaultTokens,
+} from './tokens';

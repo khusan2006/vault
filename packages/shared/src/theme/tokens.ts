@@ -1,14 +1,25 @@
-import type { ThemeConfig, StyleTokens } from '../types/display-config.types';
+import type { ThemeConfig, StyleTokens, ThemePreset } from '../types/display-config.types';
 import { PRESETS } from './presets';
+
+export const DEFAULT_THEME_PRESET: ThemePreset = 'rounded';
+export const DEFAULT_THEME_CONFIG: ThemeConfig = {
+  preset: DEFAULT_THEME_PRESET,
+  overrides: {},
+};
+
+export function resolveThemeConfig(theme?: ThemeConfig): ThemeConfig {
+  return theme ?? DEFAULT_THEME_CONFIG;
+}
 
 /**
  * Resolves a ThemeConfig into a complete StyleTokens object
  * by merging the preset base with any overrides.
  */
 export function resolveTokens(theme?: ThemeConfig): StyleTokens {
-  const base = PRESETS[theme?.preset ?? 'rounded'];
-  if (!theme?.overrides) return base;
-  return { ...base, ...theme.overrides };
+  const resolved = resolveThemeConfig(theme);
+  const base = PRESETS[resolved.preset ?? DEFAULT_THEME_PRESET];
+  if (!resolved.overrides) return base;
+  return { ...base, ...resolved.overrides };
 }
 
 /**

@@ -63,22 +63,28 @@ function mergeTimer(
 export function normalizeDisplayConfig(
   type: 'early_access',
   displayConfig?: EarlyAccessDisplayConfig,
+  defaultsOverride?: EarlyAccessDisplayConfig,
 ): EarlyAccessDisplayConfig;
 export function normalizeDisplayConfig(
   type: 'discounted_product',
   displayConfig?: DiscountedProductDisplayConfig,
+  defaultsOverride?: DiscountedProductDisplayConfig,
 ): DiscountedProductDisplayConfig;
 export function normalizeDisplayConfig(
   type: 'timer_sale',
   displayConfig?: TimerSaleDisplayConfig,
+  defaultsOverride?: TimerSaleDisplayConfig,
 ): TimerSaleDisplayConfig;
 export function normalizeDisplayConfig(
   type: CampaignType,
   displayConfig?: CampaignDisplayConfig,
+  defaultsOverride?: CampaignDisplayConfig,
 ): CampaignDisplayConfig {
   switch (type) {
     case 'early_access': {
-      const defaults = createDefaultDisplayConfig('early_access');
+      const defaults =
+        (defaultsOverride as EarlyAccessDisplayConfig | undefined) ??
+        createDefaultDisplayConfig('early_access');
       if (!displayConfig) return defaults;
       const provided = displayConfig as Partial<EarlyAccessDisplayConfig>;
       return {
@@ -94,7 +100,9 @@ export function normalizeDisplayConfig(
       };
     }
     case 'discounted_product': {
-      const defaults = createDefaultDisplayConfig('discounted_product');
+      const defaults =
+        (defaultsOverride as DiscountedProductDisplayConfig | undefined) ??
+        createDefaultDisplayConfig('discounted_product');
       if (!displayConfig) return defaults;
       const provided = displayConfig as Partial<DiscountedProductDisplayConfig>;
       return {
@@ -114,7 +122,9 @@ export function normalizeDisplayConfig(
       };
     }
     case 'timer_sale': {
-      const defaults = createDefaultDisplayConfig('timer_sale');
+      const defaults =
+        (defaultsOverride as TimerSaleDisplayConfig | undefined) ??
+        createDefaultDisplayConfig('timer_sale');
       if (!displayConfig) return defaults;
       const provided = displayConfig as Partial<TimerSaleDisplayConfig>;
       return {

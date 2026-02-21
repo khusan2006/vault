@@ -7,7 +7,7 @@ application_url = "https://your-app-url.com"
 
 [access_scopes]
 # Add scopes your app needs
-scopes = "read_products,read_customers,read_orders,write_customers,read_themes"
+scopes = "read_products,read_customers,read_orders,write_customers,read_themes,write_discounts"
 
 [auth]
 redirect_urls = ["https://your-app-url.com/api/auth/callback"]

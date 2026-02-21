@@ -1,0 +1,13 @@
+api_version = "2026-01"
+
+[[extensions]]
+name = "Vault discounts"
+handle = "vault-discounts"
+type = "product_discounts"
+
+  [extensions.build]
+  command = "npm run build"
+  path = "dist/index.js"
+
+  [extensions.input]
+  query = "input.graphql"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   BlockStack,
   Text,
@@ -17,16 +17,20 @@ import {
   ThemeConfigEditor,
 } from "../display";
 import { StorefrontPreview } from "../preview/StorefrontPreview";
-import { CustomizerShell } from "../customizer/CustomizerShell";
-import { CustomizerPreviewPane } from "../customizer/CustomizerPreviewPane";
-import { CustomizerMenuButton } from "../customizer/CustomizerMenuButton";
+import {
+  CustomizerShell,
+  CustomizerPreviewPane,
+  CustomizerMenuButton,
+  useDisplayConfigDraft,
+} from "../customizer";
+import { getThemeConfig } from "@/utils/display-config";
 
 interface TimerSaleCustomizerModalProps {
   open: boolean;
   onClose: () => void;
   displayConfig: TimerSaleDisplayConfig;
   onDisplayConfigChange: (config: TimerSaleDisplayConfig) => void;
-  onResetToDefaults?: () => void;
+  getDefaultDisplayConfig?: () => TimerSaleDisplayConfig;
   products?: SelectedResource[];
   discount?: DiscountConfig;
 }
@@ -36,95 +40,75 @@ export function TimerSaleCustomizerModal({
   onClose,
   displayConfig,
   onDisplayConfigChange,
-  onResetToDefaults,
-  products,
-  discount,
-}: TimerSaleCustomizerModalProps) {
-  const resetKey = open ? JSON.stringify(displayConfig) : "closed";
-  return (
-    <TimerSaleCustomizerModalInner
-      key={resetKey}
-      open={open}
-      onClose={onClose}
-      displayConfig={displayConfig}
-      onDisplayConfigChange={onDisplayConfigChange}
-      onResetToDefaults={onResetToDefaults}
-      products={products}
-      discount={discount}
-    />
-  );
-}
-
-function TimerSaleCustomizerModalInner({
-  open,
-  onClose,
-  displayConfig,
-  onDisplayConfigChange,
-  onResetToDefaults,
+  getDefaultDisplayConfig,
   products,
   discount,
 }: TimerSaleCustomizerModalProps) {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
-  const [draftConfig, setDraftConfig] =
-    useState<TimerSaleDisplayConfig>(displayConfig);
+  const { draft: draftConfig, setDraft: setDraftConfig, isDirty, discard } =
+    useDisplayConfigDraft(open, displayConfig);
   const [panel, setPanel] =
     useState<"menu" | "theme" | "notification" | "product" | "timer" >("menu");
   const previewRef = useRef<HTMLDivElement>(null);
+  const themeValue = getThemeConfig(draftConfig.theme);
+
+  useEffect(() => {
+    if (open) {
+      setPanel("menu");
+    }
+  }, [open]);
   const handleUpdateNotification = useCallback(
     (notification: TimerSaleDisplayConfig["notification"]) => {
-      setDraftConfig((prev) => {
-        const nextConfig = { ...prev, notification };
-        onDisplayConfigChange(nextConfig);
-        return nextConfig;
-      });
+      setDraftConfig((prev) => ({ ...prev, notification }));
     },
-    [onDisplayConfigChange],
+    [setDraftConfig],
   );
 
   const handleUpdateProductPage = useCallback(
     (productPage: TimerSaleDisplayConfig["productPage"]) => {
-      setDraftConfig((prev) => {
-        const nextConfig = { ...prev, productPage };
-        onDisplayConfigChange(nextConfig);
-        return nextConfig;
-      });
+      setDraftConfig((prev) => ({ ...prev, productPage }));
     },
-    [onDisplayConfigChange],
+    [setDraftConfig],
   );
 
   const handleUpdateTimer = useCallback(
     (timer: TimerSaleDisplayConfig["timer"]) => {
-      setDraftConfig((prev) => {
-        const nextConfig = { ...prev, timer };
-        onDisplayConfigChange(nextConfig);
-        return nextConfig;
-      });
+      setDraftConfig((prev) => ({ ...prev, timer }));
     },
-    [onDisplayConfigChange],
+    [setDraftConfig],
   );
 
-  const handleDone = useCallback(() => {
+  const handleSave = useCallback(() => {
     onDisplayConfigChange(draftConfig);
     onClose();
   }, [draftConfig, onDisplayConfigChange, onClose]);
 
   const handleReset = useCallback(() => {
-    onResetToDefaults?.();
-  }, [onResetToDefaults]);
+    if (!getDefaultDisplayConfig) return;
+    const defaults = getDefaultDisplayConfig();
+    setDraftConfig({ ...defaults, theme: draftConfig.theme });
+  }, [getDefaultDisplayConfig, setDraftConfig, draftConfig.theme]);
+
+  const handleDiscard = useCallback(() => {
+    discard();
+  }, [discard]);
 
   return (
     <CustomizerShell
       open={open}
       onClose={onClose}
       title="Customize appearance"
-      onPrimaryAction={handleDone}
+      primaryActionLabel="Save"
+      onPrimaryAction={handleSave}
+      secondaryActionLabel={isDirty ? "Discard" : undefined}
+      onSecondaryAction={isDirty ? handleDiscard : undefined}
       sidebar={
         <BlockStack gap="500">
           <InlineStack align="space-between" blockAlign="center">
             <Text as="p" tone="subdued" variant="bodySm">
               Previewing: Timer sale
             </Text>
-            {onResetToDefaults && (
+            {getDefaultDisplayConfig && (
               <Button size="slim" variant="plain" onClick={handleReset}>
                 Reset to defaults
               </Button>
@@ -175,11 +159,10 @@ function TimerSaleCustomizerModalInner({
 
               {panel === "theme" && (
                 <ThemeConfigEditor
-                  value={draftConfig.theme ?? { preset: 'rounded', overrides: {} }}
+                  value={themeValue}
                   onChange={(theme) => {
                     const next = { ...draftConfig, theme };
                     setDraftConfig(next);
-                    onDisplayConfigChange(next);
                   }}
                   previewRef={previewRef}
                 />

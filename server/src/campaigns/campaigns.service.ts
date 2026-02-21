@@ -12,6 +12,8 @@ import type {
   TimerSaleConfig,
 } from '../common/types/index.js';
 import {
+  buildEarlyAccessDisplayConfig,
+  buildTimerSaleDisplayConfig,
   normalizeDisplayConfig,
 } from '../common/types/display-config.types.js';
 import type {
@@ -210,9 +212,13 @@ export class CampaignsService {
     switch (type) {
       case 'early_access': {
         const cfg = config as EarlyAccessConfig;
+        const defaults = cfg.storefrontApproach
+          ? buildEarlyAccessDisplayConfig(cfg.storefrontApproach)
+          : undefined;
         const displayConfig = normalizeDisplayConfig(
           'early_access',
           cfg.displayConfig,
+          defaults,
         ) as EarlyAccessDisplayConfig;
         return { ...cfg, displayConfig };
       }
@@ -226,9 +232,11 @@ export class CampaignsService {
       }
       case 'timer_sale': {
         const cfg = config as TimerSaleConfig;
+        const defaults = buildTimerSaleDisplayConfig(cfg.timerType);
         const displayConfig = normalizeDisplayConfig(
           'timer_sale',
           cfg.displayConfig,
+          defaults,
         ) as TimerSaleDisplayConfig;
         return { ...cfg, displayConfig };
       }
@@ -247,9 +255,15 @@ export class CampaignsService {
         const cfg = merged as EarlyAccessConfig;
         const baseCfg = base as EarlyAccessConfig;
         const incomingCfg = incoming as EarlyAccessConfig;
+        const approach =
+          incomingCfg.storefrontApproach ?? baseCfg.storefrontApproach;
+        const defaults = approach
+          ? buildEarlyAccessDisplayConfig(approach)
+          : undefined;
         const displayConfig = normalizeDisplayConfig(
           'early_access',
           incomingCfg.displayConfig ?? baseCfg.displayConfig,
+          defaults,
         ) as EarlyAccessDisplayConfig;
         return { ...cfg, displayConfig };
       }
@@ -267,9 +281,12 @@ export class CampaignsService {
         const cfg = merged as TimerSaleConfig;
         const baseCfg = base as TimerSaleConfig;
         const incomingCfg = incoming as TimerSaleConfig;
+        const timerType = incomingCfg.timerType ?? baseCfg.timerType;
+        const defaults = buildTimerSaleDisplayConfig(timerType);
         const displayConfig = normalizeDisplayConfig(
           'timer_sale',
           incomingCfg.displayConfig ?? baseCfg.displayConfig,
+          defaults,
         ) as TimerSaleDisplayConfig;
         return { ...cfg, displayConfig };
       }

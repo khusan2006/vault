@@ -34,20 +34,21 @@ function mergeProductPage(base, override) {
 function mergeTimer(base, override) {
     return { ...base, ...(override ?? {}) };
 }
-export function normalizeDisplayConfig(type, displayConfig) {
+export function normalizeDisplayConfig(type, displayConfig, defaultsOverride) {
     switch (type) {
         case 'early_access': {
-            const defaults = createDefaultDisplayConfig('early_access');
+            const defaults = defaultsOverride ?? createDefaultDisplayConfig('early_access');
             if (!displayConfig)
                 return defaults;
             const provided = displayConfig;
             return {
                 notification: mergeNotification(defaults.notification, provided.notification),
                 landingPage: mergeLandingPage(defaults.landingPage, provided.landingPage),
+                theme: provided.theme,
             };
         }
         case 'discounted_product': {
-            const defaults = createDefaultDisplayConfig('discounted_product');
+            const defaults = defaultsOverride ?? createDefaultDisplayConfig('discounted_product');
             if (!displayConfig)
                 return defaults;
             const provided = displayConfig;
@@ -55,10 +56,11 @@ export function normalizeDisplayConfig(type, displayConfig) {
                 notification: mergeNotification(defaults.notification, provided.notification),
                 landingPage: mergeLandingPage(defaults.landingPage, provided.landingPage),
                 productPage: mergeProductPage(defaults.productPage, provided.productPage),
+                theme: provided.theme,
             };
         }
         case 'timer_sale': {
-            const defaults = createDefaultDisplayConfig('timer_sale');
+            const defaults = defaultsOverride ?? createDefaultDisplayConfig('timer_sale');
             if (!displayConfig)
                 return defaults;
             const provided = displayConfig;
@@ -66,6 +68,7 @@ export function normalizeDisplayConfig(type, displayConfig) {
                 notification: mergeNotification(defaults.notification, provided.notification),
                 productPage: mergeProductPage(defaults.productPage, provided.productPage),
                 timer: mergeTimer(defaults.timer, provided.timer),
+                theme: provided.theme,
             };
         }
     }

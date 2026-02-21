@@ -14,43 +14,14 @@ import type {
   CampaignConfig,
   TimerSaleConfig,
   TimerSaleDisplayConfig,
-  NotificationDisplayConfig,
-  ProductPageDisplayConfig,
-  TimerDisplayConfig,
 } from "@/types";
 import type { CampaignFormState } from "@/hooks/useCampaignForm";
 import type { SelectedResource } from "@/hooks/useResourcePicker";
 import { TimerSaleCustomizerModal } from "./TimerSaleCustomizerModal";
-
-const DEFAULT_NOTIFICATION: NotificationDisplayConfig = {
-  type: "banner",
-  message: "Limited-time price for qualifying customers!",
-  buttonText: "Shop the sale",
-  buttonUrl: "/collections/timer-sale",
-  visuals: { primaryColor: "#b91c1c", textColor: "#ffffff", position: "top" },
-  behavior: { autoDismissSeconds: null, showFrequency: "once_per_day" },
-};
-
-const DEFAULT_PRODUCT_PAGE: ProductPageDisplayConfig = {
-  showStrikethroughPricing: true,
-  discountBadge: { enabled: true, text: "Sale price", color: "#b91c1c" },
-  banner: null,
-};
-
-const DEFAULT_TIMER_DISPLAY: TimerDisplayConfig = {
-  timerType: "per_customer",
-  position: "above_add_to_cart",
-  expiredMessage: "This offer has expired",
-  style: "urgent",
-};
-
-function buildDefaultDisplayConfig(timerType: TimerSaleConfig["timerType"]): TimerSaleDisplayConfig {
-  return {
-    notification: { ...DEFAULT_NOTIFICATION },
-    productPage: { ...DEFAULT_PRODUCT_PAGE },
-    timer: { ...DEFAULT_TIMER_DISPLAY, timerType },
-  };
-}
+import {
+  ensureTimerSaleDisplayConfig,
+  getDefaultTimerSaleDisplayConfig,
+} from "@/utils/display-config";
 
 function toTitle(value: string) {
   return value
@@ -84,32 +55,43 @@ export function TimerSaleDisplayStep({
   );
 
   useEffect(() => {
+    const normalized = ensureTimerSaleDisplayConfig(
+      config.timerType,
+      config.displayConfig,
+    );
     if (!config.displayConfig) {
-      updateConfig({
-        displayConfig: buildDefaultDisplayConfig(config.timerType),
-      });
+      updateConfig({ displayConfig: normalized });
+      return;
+    }
+    if (JSON.stringify(normalized) !== JSON.stringify(config.displayConfig)) {
+      updateConfig({ displayConfig: normalized });
     }
   }, [config.displayConfig, config.timerType, updateConfig]);
 
+  const normalizedDisplayConfig = useMemo(
+    () => ensureTimerSaleDisplayConfig(config.timerType, config.displayConfig),
+    [config.timerType, config.displayConfig],
+  );
+
   const handleUpdateDisplayConfig = useCallback(
     (updates: Partial<TimerSaleDisplayConfig>) => {
-      const current = config.displayConfig;
+      const current = normalizedDisplayConfig;
       if (!current) return;
       updateConfig({ displayConfig: { ...current, ...updates } });
     },
-    [config.displayConfig, updateConfig],
+    [normalizedDisplayConfig, updateConfig],
   );
 
   const handleResetDefaults = useCallback(() => {
-    const defaults = buildDefaultDisplayConfig(config.timerType);
+    const defaults = getDefaultTimerSaleDisplayConfig(config.timerType);
     updateConfig({
       displayConfig: { ...defaults, theme: config.displayConfig?.theme },
     });
   }, [config.timerType, config.displayConfig?.theme, updateConfig]);
 
   const summary = useMemo(() => {
-    if (!config.displayConfig) return null;
-    const { notification, productPage, timer } = config.displayConfig;
+    if (!normalizedDisplayConfig) return null;
+    const { notification, productPage, timer } = normalizedDisplayConfig;
 
     const notificationSummary = [
       toTitle(notification.type),
@@ -132,9 +114,9 @@ export function TimerSaleDisplayStep({
     ].join(" · ");
 
     return { notificationSummary, productSummary, timerSummary };
-  }, [config.displayConfig]);
+  }, [normalizedDisplayConfig]);
 
-  if (!config.displayConfig) return null;
+  if (!normalizedDisplayConfig) return null;
 
   return (
     <BlockStack gap="500">
@@ -192,11 +174,13 @@ export function TimerSaleDisplayStep({
       <TimerSaleCustomizerModal
         open={showCustomize}
         onClose={() => setShowCustomize(false)}
-        displayConfig={config.displayConfig}
+        displayConfig={normalizedDisplayConfig}
         onDisplayConfigChange={(newConfig) =>
           handleUpdateDisplayConfig(newConfig)
         }
-        onResetToDefaults={handleResetDefaults}
+        getDefaultDisplayConfig={() =>
+          getDefaultTimerSaleDisplayConfig(config.timerType)
+        }
         products={selectedProducts}
         discount={config.discount}
       />

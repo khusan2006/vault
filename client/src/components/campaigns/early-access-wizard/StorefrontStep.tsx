@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   BlockStack,
   InlineStack,
@@ -24,40 +24,19 @@ import type {
   EarlyAccessStorefrontApproach,
   CampaignConfig,
   EarlyAccessDisplayConfig,
-  NotificationDisplayConfig,
-  LandingPageDisplayConfig,
 } from "@/types";
 import type { CampaignFormState } from "@/hooks/useCampaignForm";
 import type { SelectedResource } from "@/hooks/useResourcePicker";
 import { DisplayCustomizerModal } from "./DisplayCustomizerModal";
 import { StorefrontPreview } from "../preview/StorefrontPreview";
+import {
+  ensureEarlyAccessDisplayConfig,
+  getDefaultEarlyAccessDisplayConfig,
+} from "@/utils/display-config";
 
 // =============================================================================
 // Constants
 // =============================================================================
-
-const DEFAULT_NOTIFICATION: NotificationDisplayConfig = {
-  type: "banner",
-  message: "You have access to exclusive products!",
-  buttonText: "View Exclusive Products",
-  buttonUrl: "/apps/vault/exclusive",
-  visuals: { primaryColor: "#7c3aed", textColor: "#ffffff", position: "top" },
-  behavior: { autoDismissSeconds: null, showFrequency: "once_per_day" },
-};
-
-const DEFAULT_LANDING_PAGE: LandingPageDisplayConfig = {
-  enabled: true,
-  heading: "Exclusive Products",
-  subheading: "Products available just for you",
-  gridColumns: 3,
-  badgeText: "Exclusive",
-  badgeColor: "#7c3aed",
-  itemLayout: "card",
-  showAddToCart: true,
-  showCategory: true,
-  showCompareAt: true,
-  showRatings: true,
-};
 
 interface ApproachOption {
   id: EarlyAccessStorefrontApproach;
@@ -117,47 +96,6 @@ const APPROACH_OPTIONS: ApproachOption[] = [
 // =============================================================================
 // Helpers
 // =============================================================================
-
-function buildDefaultDisplayConfig(
-  approach: EarlyAccessStorefrontApproach,
-): EarlyAccessDisplayConfig {
-  const notification = { ...DEFAULT_NOTIFICATION };
-  const landingPage = { ...DEFAULT_LANDING_PAGE };
-
-  if (approach === "modal") {
-    // Modal approach: notification CTA opens a product-display popup.
-    // Use banner (not modal notification) so it doesn't conflict with
-    // the products modal that opens on CTA click.
-    notification.type = "banner";
-    notification.message =
-      "You have exclusive early access! Browse products available only to you.";
-    notification.buttonText = "View Exclusive Products";
-    notification.buttonUrl = "#vault-products-modal";
-    notification.behavior = {
-      ...notification.behavior,
-      showFrequency: "once_per_session",
-    };
-  } else if (approach === "storefront_section") {
-    notification.type = "banner";
-    notification.message =
-      "Early access: Exclusive products are now available for you!";
-    notification.visuals = {
-      ...notification.visuals,
-      position: "top",
-    };
-  } else {
-    // customer_page — link to the customer account where our extension renders
-    notification.type = "badge";
-    notification.message = "You have exclusive products available";
-    notification.buttonText = "View in My Account";
-    notification.buttonUrl = "/account";
-    landingPage.heading = "Your Exclusive Products";
-    landingPage.subheading =
-      "These products are available only to you. Browse and shop before anyone else.";
-  }
-
-  return { notification, landingPage };
-}
 
 function toTitle(value: string) {
   return value
@@ -303,7 +241,7 @@ export function StorefrontStep({
 
   const handleSelectApproach = useCallback(
     (approach: EarlyAccessStorefrontApproach) => {
-      const defaults = buildDefaultDisplayConfig(approach);
+      const defaults = getDefaultEarlyAccessDisplayConfig(approach);
       updateConfig({
         storefrontApproach: approach,
         displayConfig: { ...defaults, theme: config.displayConfig?.theme },
@@ -313,28 +251,50 @@ export function StorefrontStep({
     [config.displayConfig?.theme, updateConfig],
   );
 
+  const normalizedDisplayConfig = useMemo(() => {
+    if (!selectedApproach) return null;
+    return ensureEarlyAccessDisplayConfig(
+      selectedApproach,
+      config.displayConfig ?? undefined,
+    );
+  }, [selectedApproach, config.displayConfig]);
+
+  useEffect(() => {
+    if (!selectedApproach || !normalizedDisplayConfig) return;
+    if (!config.displayConfig) {
+      updateConfig({ displayConfig: normalizedDisplayConfig });
+      return;
+    }
+    if (
+      JSON.stringify(normalizedDisplayConfig) !==
+      JSON.stringify(config.displayConfig)
+    ) {
+      updateConfig({ displayConfig: normalizedDisplayConfig });
+    }
+  }, [selectedApproach, normalizedDisplayConfig, config.displayConfig, updateConfig]);
+
   const handleUpdateDisplayConfig = useCallback(
     (updates: Partial<EarlyAccessDisplayConfig>) => {
-      const current = config.displayConfig;
+      const current = normalizedDisplayConfig ?? config.displayConfig;
       if (!current) return;
       updateConfig({
         displayConfig: { ...current, ...updates },
       });
     },
-    [config.displayConfig, updateConfig],
+    [config.displayConfig, normalizedDisplayConfig, updateConfig],
   );
 
   const handleResetDefaults = useCallback(() => {
     if (!selectedApproach) return;
-    const defaults = buildDefaultDisplayConfig(selectedApproach);
+    const defaults = getDefaultEarlyAccessDisplayConfig(selectedApproach);
     updateConfig({
       displayConfig: { ...defaults, theme: config.displayConfig?.theme },
     });
   }, [selectedApproach, config.displayConfig?.theme, updateConfig]);
 
   const summary = useMemo(() => {
-    if (!config.displayConfig) return null;
-    const { notification, landingPage } = config.displayConfig;
+    if (!normalizedDisplayConfig) return null;
+    const { notification, landingPage } = normalizedDisplayConfig;
 
     const notificationSummary = [
       toTitle(notification.type),
@@ -350,7 +310,10 @@ export function StorefrontStep({
       : "Landing page disabled";
 
     return { notificationSummary, landingSummary };
-  }, [config.displayConfig]);
+  }, [normalizedDisplayConfig]);
+
+  const displayConfigForRender =
+    normalizedDisplayConfig ?? config.displayConfig ?? null;
 
   return (
     <BlockStack gap="500">
@@ -384,7 +347,7 @@ export function StorefrontStep({
       </div>
 
       {/* Customize further section */}
-      {selectedApproach && config.displayConfig && (
+      {selectedApproach && displayConfigForRender && (
         <>
           <Card>
             <BlockStack gap="400">
@@ -440,18 +403,20 @@ export function StorefrontStep({
           <DisplayCustomizerModal
             open={showCustomize}
             onClose={() => setShowCustomize(false)}
-            displayConfig={config.displayConfig}
+            displayConfig={displayConfigForRender}
             onDisplayConfigChange={(newConfig) =>
               handleUpdateDisplayConfig(newConfig)
             }
             approach={selectedApproach}
-            onResetToDefaults={handleResetDefaults}
+            getDefaultDisplayConfig={() =>
+              getDefaultEarlyAccessDisplayConfig(selectedApproach)
+            }
             products={selectedProducts}
           />
         </>
       )}
 
-      {showInlinePreview && selectedApproach && config.displayConfig && (
+      {showInlinePreview && selectedApproach && displayConfigForRender && (
         <Card>
           <BlockStack gap="400">
             <InlineStack align="space-between" blockAlign="center">
@@ -487,7 +452,7 @@ export function StorefrontStep({
               className="h-[520px] overflow-hidden rounded-[16px] border border-[var(--p-color-border)]"
             >
               <StorefrontPreview
-                config={config.displayConfig}
+                config={displayConfigForRender}
                 device={previewDevice}
                 products={selectedProducts}
                 approach={selectedApproach}

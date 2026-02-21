@@ -1,0 +1,28 @@
+query RunInput {
+  cart {
+    lines {
+      quantity
+      merchandise {
+        __typename
+        ... on ProductVariant {
+          id
+          product {
+            id
+          }
+        }
+      }
+    }
+    buyerIdentity {
+      customer {
+        metafield(namespace: "vault", key: "eligible_benefits") {
+          value
+        }
+      }
+    }
+  }
+  discountNode {
+    metafield(namespace: "vault", key: "mode") {
+      value
+    }
+  }
+}

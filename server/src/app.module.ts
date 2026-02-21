@@ -19,6 +19,8 @@ import { EvaluationModule } from './evaluation/evaluation.module.js';
 import { ProxyModule } from './proxy/proxy.module.js';
 import { SetupModule } from './setup/setup.module.js';
 import { MetafieldSyncJob } from './shopify/entities/metafield-sync-job.entity.js';
+import { DiscountsModule } from './discounts/discounts.module.js';
+import { TimerSaleCode } from './discounts/entities/timer-sale-code.entity.js';
 
 @Module({
   imports: [
@@ -53,7 +55,13 @@ import { MetafieldSyncJob } from './shopify/entities/metafield-sync-job.entity.j
         username: configService.get<string>('database.username', 'postgres'),
         password: configService.get<string>('database.password', ''),
         database: configService.get<string>('database.name', 'shopify_app'),
-        entities: [Session, Campaign, EvaluationCache, MetafieldSyncJob],
+        entities: [
+          Session,
+          Campaign,
+          EvaluationCache,
+          MetafieldSyncJob,
+          TimerSaleCode,
+        ],
         synchronize: configService.get<string>('nodeEnv') !== 'production',
         ssl: configService.get<boolean>('database.ssl', false)
           ? { rejectUnauthorized: false }
@@ -69,6 +77,7 @@ import { MetafieldSyncJob } from './shopify/entities/metafield-sync-job.entity.j
     EvaluationModule,
     ProxyModule,
     SetupModule,
+    DiscountsModule,
   ],
   controllers: [AppController],
   providers: [

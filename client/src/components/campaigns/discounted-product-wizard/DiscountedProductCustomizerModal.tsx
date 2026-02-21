@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import {
   BlockStack,
   Text,
@@ -17,16 +17,20 @@ import {
   ThemeConfigEditor,
 } from "../display";
 import { StorefrontPreview } from "../preview/StorefrontPreview";
-import { CustomizerShell } from "../customizer/CustomizerShell";
-import { CustomizerPreviewPane } from "../customizer/CustomizerPreviewPane";
-import { CustomizerMenuButton } from "../customizer/CustomizerMenuButton";
+import {
+  CustomizerShell,
+  CustomizerPreviewPane,
+  CustomizerMenuButton,
+  useDisplayConfigDraft,
+} from "../customizer";
+import { getThemeConfig } from "@/utils/display-config";
 
 interface DiscountedProductCustomizerModalProps {
   open: boolean;
   onClose: () => void;
   displayConfig: DiscountedProductDisplayConfig;
   onDisplayConfigChange: (config: DiscountedProductDisplayConfig) => void;
-  onResetToDefaults?: () => void;
+  getDefaultDisplayConfig?: () => DiscountedProductDisplayConfig;
   products?: SelectedResource[];
   discount?: DiscountConfig;
 }
@@ -36,82 +40,59 @@ export function DiscountedProductCustomizerModal({
   onClose,
   displayConfig,
   onDisplayConfigChange,
-  onResetToDefaults,
-  products,
-  discount,
-}: DiscountedProductCustomizerModalProps) {
-  const resetKey = open ? JSON.stringify(displayConfig) : "closed";
-  return (
-    <DiscountedProductCustomizerModalInner
-      key={resetKey}
-      open={open}
-      onClose={onClose}
-      displayConfig={displayConfig}
-      onDisplayConfigChange={onDisplayConfigChange}
-      onResetToDefaults={onResetToDefaults}
-      products={products}
-      discount={discount}
-    />
-  );
-}
-
-function DiscountedProductCustomizerModalInner({
-  open,
-  onClose,
-  displayConfig,
-  onDisplayConfigChange,
-  onResetToDefaults,
+  getDefaultDisplayConfig,
   products,
   discount,
 }: DiscountedProductCustomizerModalProps) {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
-  const [draftConfig, setDraftConfig] =
-    useState<DiscountedProductDisplayConfig>(displayConfig);
+  const { draft: draftConfig, setDraft: setDraftConfig, isDirty, discard } =
+    useDisplayConfigDraft(open, displayConfig);
   const [panel, setPanel] =
     useState<"menu" | "theme" | "notification" | "landing" | "product">("menu");
   const previewRef = useRef<HTMLDivElement>(null);
+  const themeValue = getThemeConfig(draftConfig.theme);
+
+  useEffect(() => {
+    if (open) {
+      setPanel("menu");
+    }
+  }, [open]);
 
   const handleUpdateNotification = useCallback(
     (notification: DiscountedProductDisplayConfig["notification"]) => {
-      setDraftConfig((prev) => {
-        const nextConfig = { ...prev, notification };
-        onDisplayConfigChange(nextConfig);
-        return nextConfig;
-      });
+      setDraftConfig((prev) => ({ ...prev, notification }));
     },
-    [onDisplayConfigChange],
+    [setDraftConfig],
   );
 
   const handleUpdateLandingPage = useCallback(
     (landingPage: DiscountedProductDisplayConfig["landingPage"]) => {
-      setDraftConfig((prev) => {
-        const nextConfig = { ...prev, landingPage };
-        onDisplayConfigChange(nextConfig);
-        return nextConfig;
-      });
+      setDraftConfig((prev) => ({ ...prev, landingPage }));
     },
-    [onDisplayConfigChange],
+    [setDraftConfig],
   );
 
   const handleUpdateProductPage = useCallback(
     (productPage: DiscountedProductDisplayConfig["productPage"]) => {
-      setDraftConfig((prev) => {
-        const nextConfig = { ...prev, productPage };
-        onDisplayConfigChange(nextConfig);
-        return nextConfig;
-      });
+      setDraftConfig((prev) => ({ ...prev, productPage }));
     },
-    [onDisplayConfigChange],
+    [setDraftConfig],
   );
 
-  const handleDone = useCallback(() => {
+  const handleSave = useCallback(() => {
     onDisplayConfigChange(draftConfig);
     onClose();
   }, [draftConfig, onDisplayConfigChange, onClose]);
 
   const handleReset = useCallback(() => {
-    onResetToDefaults?.();
-  }, [onResetToDefaults]);
+    if (!getDefaultDisplayConfig) return;
+    const defaults = getDefaultDisplayConfig();
+    setDraftConfig({ ...defaults, theme: draftConfig.theme });
+  }, [getDefaultDisplayConfig, setDraftConfig, draftConfig.theme]);
+
+  const handleDiscard = useCallback(() => {
+    discard();
+  }, [discard]);
 
   const previewView = useMemo(() => {
     if (panel === "landing") return "landing" as const;
@@ -124,14 +105,17 @@ function DiscountedProductCustomizerModalInner({
       open={open}
       onClose={onClose}
       title="Customize appearance"
-      onPrimaryAction={handleDone}
+      primaryActionLabel="Save"
+      onPrimaryAction={handleSave}
+      secondaryActionLabel={isDirty ? "Discard" : undefined}
+      onSecondaryAction={isDirty ? handleDiscard : undefined}
       sidebar={
         <BlockStack gap="500">
           <InlineStack align="space-between" blockAlign="center">
             <Text as="p" tone="subdued" variant="bodySm">
               Previewing: Discounted pricing
             </Text>
-            {onResetToDefaults && (
+            {getDefaultDisplayConfig && (
               <Button size="slim" variant="plain" onClick={handleReset}>
                 Reset to defaults
               </Button>
@@ -183,11 +167,10 @@ function DiscountedProductCustomizerModalInner({
 
               {panel === "theme" && (
                 <ThemeConfigEditor
-                  value={draftConfig.theme ?? { preset: 'rounded', overrides: {} }}
+                  value={themeValue}
                   onChange={(theme) => {
                     const next = { ...draftConfig, theme };
                     setDraftConfig(next);
-                    onDisplayConfigChange(next);
                   }}
                   previewRef={previewRef}
                 />

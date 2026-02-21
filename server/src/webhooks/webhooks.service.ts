@@ -4,6 +4,7 @@ import { ShopifyService } from '../shopify/shopify.service.js';
 import { SessionService } from '../session/session.service.js';
 import { EvaluationService } from '../evaluation/evaluation.service.js';
 import { CampaignsService } from '../campaigns/campaigns.service.js';
+import { TimerSaleCodesService } from '../discounts/timer-sale-codes.service.js';
 
 export interface WebhookValidationResult {
   valid: boolean;
@@ -21,6 +22,7 @@ export class WebhooksService {
     private readonly sessionService: SessionService,
     private readonly evaluationService: EvaluationService,
     private readonly campaignsService: CampaignsService,
+    private readonly timerSaleCodesService: TimerSaleCodesService,
   ) {}
 
   async validateWebhook(request: RawBodyRequest<Request>): Promise<WebhookValidationResult> {
@@ -92,6 +94,7 @@ export class WebhooksService {
     const order = payload as {
       id?: number;
       customer?: { id?: number };
+      discount_codes?: Array<{ code?: string }>;
     };
 
     if (!order?.customer?.id) {
@@ -103,6 +106,24 @@ export class WebhooksService {
     this.logger.log(
       `Order paid for customer ${customerId} on shop ${shop}`,
     );
+
+    const codes =
+      order.discount_codes?.map((d) => d.code).filter(Boolean) ?? [];
+    if (codes.length > 0) {
+      try {
+        await this.timerSaleCodesService.markCodesUsed(
+          shop,
+          customerId,
+          codes as string[],
+          order.id ? String(order.id) : undefined,
+        );
+      } catch (error) {
+        this.logger.error(
+          `Failed to mark timer sale codes used for ${customerId} on ${shop}`,
+          error,
+        );
+      }
+    }
 
     // Re-evaluate customer (order count / total spent may have changed)
     try {

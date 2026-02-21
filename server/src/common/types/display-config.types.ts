@@ -21,5 +21,7 @@ export {
 
 export {
   createDefaultDisplayConfig,
+  buildEarlyAccessDisplayConfig,
+  buildTimerSaleDisplayConfig,
   normalizeDisplayConfig,
 } from '@vault/shared/display/index.js';

@@ -1,6 +1,7 @@
 import { resolveCampaignForBenefit } from '@vault/shared/benefits/resolve';
 import type { CampaignIndex, ResolvableBenefit } from '@vault/shared/benefits/resolve';
 import { log } from '../services/logger';
+import { loadTimerSaleCode } from '../services/api';
 import { onProductPage, productHandle } from '../services/page-detect';
 
 const TIMER_PREFIX = 'vault_timer_';
@@ -83,6 +84,27 @@ export function initTimer(bens: ResolvableBenefit[], campaignsIndex: CampaignInd
         const p2 = document.querySelector('.price,.product__price,[data-product-price]');
         if (p2?.parentNode) p2.parentNode.insertBefore(timerEl, p2.nextSibling);
       }
+    }
+
+    const discountMethod = cfg.discountMethod as string | undefined;
+    if (discountMethod === 'discount_code' && b.campaignId) {
+      loadTimerSaleCode(b.campaignId).then((payload) => {
+        if (!payload) return;
+
+        if (payload.status === 'ok' && payload.code) {
+          timerEl.setAttribute('promo-code', payload.code);
+          timerEl.setAttribute('promo-label', 'Use code');
+        } else if (payload.status === 'used') {
+          timerEl.setAttribute('expired-message', 'Offer already used');
+        } else if (payload.status === 'expired') {
+          timerEl.setAttribute('expired-message', 'This offer has expired');
+        }
+
+        if (payload.expiresAt) {
+          timerEl.setAttribute('end-time', payload.expiresAt);
+          timerEl.removeAttribute('duration');
+        }
+      });
     }
 
     break;

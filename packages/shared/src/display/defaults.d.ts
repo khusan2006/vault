@@ -1,8 +1,12 @@
-import type { CampaignType, NotificationDisplayConfig, LandingPageDisplayConfig, ProductPageDisplayConfig, TimerDisplayConfig, EarlyAccessDisplayConfig, DiscountedProductDisplayConfig, TimerSaleDisplayConfig } from '../types/index.js';
+import type { CampaignType, NotificationDisplayConfig, LandingPageDisplayConfig, ProductPageDisplayConfig, TimerDisplayConfig, EarlyAccessDisplayConfig, DiscountedProductDisplayConfig, TimerSaleDisplayConfig, EarlyAccessStorefrontApproach, TimerType } from '../types/index.js';
 export declare const NOTIFICATION_DEFAULTS: Record<CampaignType, NotificationDisplayConfig>;
 export declare function defaultLandingPage(): LandingPageDisplayConfig;
+export declare function defaultDiscountedLandingPage(): LandingPageDisplayConfig;
 export declare function defaultProductPage(): ProductPageDisplayConfig;
-export declare function defaultTimer(): TimerDisplayConfig;
+export declare function defaultTimerProductPage(): ProductPageDisplayConfig;
+export declare function defaultTimer(timerType?: TimerType): TimerDisplayConfig;
+export declare function buildEarlyAccessDisplayConfig(approach: EarlyAccessStorefrontApproach): EarlyAccessDisplayConfig;
+export declare function buildTimerSaleDisplayConfig(timerType: TimerType): TimerSaleDisplayConfig;
 export declare function createDefaultDisplayConfig(type: 'early_access'): EarlyAccessDisplayConfig;
 export declare function createDefaultDisplayConfig(type: 'discounted_product'): DiscountedProductDisplayConfig;
 export declare function createDefaultDisplayConfig(type: 'timer_sale'): TimerSaleDisplayConfig;

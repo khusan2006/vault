@@ -19,6 +19,8 @@ import type {
   TimerSaleConfig,
 } from '../common/types/index.js';
 import {
+  buildEarlyAccessDisplayConfig,
+  buildTimerSaleDisplayConfig,
   normalizeDisplayConfig,
 } from '../common/types/display-config.types.js';
 import type {
@@ -143,6 +145,9 @@ export class MetafieldSyncQueueService
       switch (campaign.type) {
         case 'early_access': {
           const config = campaign.config as EarlyAccessConfig;
+          const defaults = config.storefrontApproach
+            ? buildEarlyAccessDisplayConfig(config.storefrontApproach)
+            : undefined;
           return {
             ...campaign,
             config: {
@@ -150,6 +155,7 @@ export class MetafieldSyncQueueService
               displayConfig: normalizeDisplayConfig(
                 'early_access',
                 config.displayConfig,
+                defaults,
               ) as EarlyAccessDisplayConfig,
             },
           };
@@ -169,6 +175,7 @@ export class MetafieldSyncQueueService
         }
         case 'timer_sale': {
           const config = campaign.config as TimerSaleConfig;
+          const defaults = buildTimerSaleDisplayConfig(config.timerType);
           return {
             ...campaign,
             config: {
@@ -176,6 +183,7 @@ export class MetafieldSyncQueueService
               displayConfig: normalizeDisplayConfig(
                 'timer_sale',
                 config.displayConfig,
+                defaults,
               ) as TimerSaleDisplayConfig,
             },
           };

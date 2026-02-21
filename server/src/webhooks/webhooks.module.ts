@@ -6,6 +6,7 @@ import { ShopifyModule } from '../shopify/shopify.module.js';
 import { SessionModule } from '../session/session.module.js';
 import { EvaluationModule } from '../evaluation/evaluation.module.js';
 import { CampaignsModule } from '../campaigns/campaigns.module.js';
+import { DiscountsModule } from '../discounts/discounts.module.js';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CampaignsModule } from '../campaigns/campaigns.module.js';
     SessionModule,
     EvaluationModule,
     CampaignsModule,
+    DiscountsModule,
   ],
   controllers: [WebhooksController],
   providers: [WebhooksService, WebhookQueueService],

@@ -18,7 +18,7 @@ export const NOTIFICATION_DEFAULTS = {
         type: 'banner',
         message: 'Member pricing unlocked just for you!',
         buttonText: 'Shop discounted items',
-        buttonUrl: '/apps/vault/exclusive',
+        buttonUrl: '/collections/discounted',
         visuals: {
             primaryColor: '#0f766e',
             textColor: '#ffffff',
@@ -33,7 +33,7 @@ export const NOTIFICATION_DEFAULTS = {
         type: 'banner',
         message: 'Limited-time price for qualifying customers!',
         buttonText: 'Shop the sale',
-        buttonUrl: '/apps/vault/exclusive',
+        buttonUrl: '/collections/timer-sale',
         visuals: {
             primaryColor: '#b91c1c',
             textColor: '#ffffff',
@@ -65,18 +65,79 @@ export function defaultProductPage() {
         showStrikethroughPricing: true,
         discountBadge: {
             enabled: true,
-            text: 'Member Price',
-            color: '#7c3aed',
+            text: 'Member price',
+            color: '#0f766e',
         },
         banner: null,
     };
 }
-export function defaultTimer() {
+export function defaultDiscountedLandingPage() {
     return {
-        timerType: 'per_customer',
+        ...defaultLandingPage(),
+        heading: 'Member pricing',
+        subheading: 'Exclusive discounted products for qualifying customers',
+        badgeText: 'Member price',
+        badgeColor: '#0f766e',
+    };
+}
+export function defaultTimerProductPage() {
+    return {
+        showStrikethroughPricing: true,
+        discountBadge: {
+            enabled: true,
+            text: 'Sale price',
+            color: '#b91c1c',
+        },
+        banner: null,
+    };
+}
+export function defaultTimer(timerType = 'per_customer') {
+    return {
+        timerType,
         position: 'above_add_to_cart',
         expiredMessage: 'This offer has expired',
-        style: 'default',
+        style: 'urgent',
+    };
+}
+export function buildEarlyAccessDisplayConfig(approach) {
+    const notification = { ...NOTIFICATION_DEFAULTS.early_access };
+    const landingPage = defaultLandingPage();
+    if (approach === 'modal') {
+        notification.type = 'banner';
+        notification.message =
+            'You have exclusive early access! Browse products available only to you.';
+        notification.buttonText = 'View Exclusive Products';
+        notification.buttonUrl = '#vault-products-modal';
+        notification.behavior = {
+            ...notification.behavior,
+            showFrequency: 'once_per_session',
+        };
+    }
+    else if (approach === 'storefront_section') {
+        notification.type = 'banner';
+        notification.message =
+            'Early access: Exclusive products are now available for you!';
+        notification.visuals = {
+            ...notification.visuals,
+            position: 'top',
+        };
+    }
+    else {
+        notification.type = 'badge';
+        notification.message = 'You have exclusive products available';
+        notification.buttonText = 'View in My Account';
+        notification.buttonUrl = '/account';
+        landingPage.heading = 'Your Exclusive Products';
+        landingPage.subheading =
+            'These products are available only to you. Browse and shop before anyone else.';
+    }
+    return { notification, landingPage };
+}
+export function buildTimerSaleDisplayConfig(timerType) {
+    return {
+        notification: NOTIFICATION_DEFAULTS.timer_sale,
+        productPage: defaultTimerProductPage(),
+        timer: defaultTimer(timerType),
     };
 }
 export function createDefaultDisplayConfig(type) {
@@ -89,16 +150,13 @@ export function createDefaultDisplayConfig(type) {
         case 'discounted_product':
             return {
                 notification: NOTIFICATION_DEFAULTS.discounted_product,
-                landingPage: {
-                    ...defaultLandingPage(),
-                    badgeText: 'VIP Price',
-                },
+                landingPage: defaultDiscountedLandingPage(),
                 productPage: defaultProductPage(),
             };
         case 'timer_sale':
             return {
                 notification: NOTIFICATION_DEFAULTS.timer_sale,
-                productPage: defaultProductPage(),
+                productPage: defaultTimerProductPage(),
                 timer: defaultTimer(),
             };
     }

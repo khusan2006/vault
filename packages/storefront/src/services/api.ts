@@ -80,3 +80,16 @@ export function loadProduct(handle: string): Promise<ShopifyProduct | null> {
 }
 
 export type { ShopifyProduct };
+
+export interface TimerSaleCodePayload {
+  status: string;
+  code: string | null;
+  expiresAt: string | null;
+}
+
+export function loadTimerSaleCode(
+  campaignId: string,
+): Promise<TimerSaleCodePayload | null> {
+  const url = '/apps/vault/timer-sale-code?campaignId=' + encodeURIComponent(campaignId);
+  return api<TimerSaleCodePayload>(url);
+}

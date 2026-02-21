@@ -14,50 +14,14 @@ import type {
   CampaignConfig,
   DiscountedProductConfig,
   DiscountedProductDisplayConfig,
-  NotificationDisplayConfig,
-  LandingPageDisplayConfig,
-  ProductPageDisplayConfig,
 } from "@/types";
 import type { CampaignFormState } from "@/hooks/useCampaignForm";
 import type { SelectedResource } from "@/hooks/useResourcePicker";
 import { DiscountedProductCustomizerModal } from "./DiscountedProductCustomizerModal";
-
-const DEFAULT_NOTIFICATION: NotificationDisplayConfig = {
-  type: "banner",
-  message: "Member pricing unlocked just for you!",
-  buttonText: "Shop discounted items",
-  buttonUrl: "/collections/discounted",
-  visuals: { primaryColor: "#0f766e", textColor: "#ffffff", position: "top" },
-  behavior: { autoDismissSeconds: null, showFrequency: "once_per_day" },
-};
-
-const DEFAULT_LANDING_PAGE: LandingPageDisplayConfig = {
-  enabled: true,
-  heading: "Member pricing",
-  subheading: "Exclusive discounted products for qualifying customers",
-  gridColumns: 3,
-  badgeText: "Member price",
-  badgeColor: "#0f766e",
-  itemLayout: "card",
-  showAddToCart: true,
-  showCategory: true,
-  showCompareAt: true,
-  showRatings: true,
-};
-
-const DEFAULT_PRODUCT_PAGE: ProductPageDisplayConfig = {
-  showStrikethroughPricing: true,
-  discountBadge: { enabled: true, text: "Member price", color: "#0f766e" },
-  banner: null,
-};
-
-function buildDefaultDisplayConfig(): DiscountedProductDisplayConfig {
-  return {
-    notification: { ...DEFAULT_NOTIFICATION },
-    landingPage: { ...DEFAULT_LANDING_PAGE },
-    productPage: { ...DEFAULT_PRODUCT_PAGE },
-  };
-}
+import {
+  ensureDiscountedDisplayConfig,
+  getDefaultDiscountedDisplayConfig,
+} from "@/utils/display-config";
 
 function toTitle(value: string) {
   return value
@@ -91,30 +55,40 @@ export function DiscountedProductDisplayStep({
   );
 
   useEffect(() => {
+    const normalized = ensureDiscountedDisplayConfig(config.displayConfig);
     if (!config.displayConfig) {
-      updateConfig({ displayConfig: buildDefaultDisplayConfig() });
+      updateConfig({ displayConfig: normalized });
+      return;
+    }
+    if (JSON.stringify(normalized) !== JSON.stringify(config.displayConfig)) {
+      updateConfig({ displayConfig: normalized });
     }
   }, [config.displayConfig, updateConfig]);
 
+  const normalizedDisplayConfig = useMemo(
+    () => ensureDiscountedDisplayConfig(config.displayConfig),
+    [config.displayConfig],
+  );
+
   const handleUpdateDisplayConfig = useCallback(
     (updates: Partial<DiscountedProductDisplayConfig>) => {
-      const current = config.displayConfig;
+      const current = normalizedDisplayConfig;
       if (!current) return;
       updateConfig({ displayConfig: { ...current, ...updates } });
     },
-    [config.displayConfig, updateConfig],
+    [normalizedDisplayConfig, updateConfig],
   );
 
   const handleResetDefaults = useCallback(() => {
-    const defaults = buildDefaultDisplayConfig();
+    const defaults = getDefaultDiscountedDisplayConfig();
     updateConfig({
       displayConfig: { ...defaults, theme: config.displayConfig?.theme },
     });
   }, [config.displayConfig?.theme, updateConfig]);
 
   const summary = useMemo(() => {
-    if (!config.displayConfig) return null;
-    const { notification, landingPage, productPage } = config.displayConfig;
+    if (!normalizedDisplayConfig) return null;
+    const { notification, landingPage, productPage } = normalizedDisplayConfig;
 
     const notificationSummary = [
       toTitle(notification.type),
@@ -136,9 +110,9 @@ export function DiscountedProductDisplayStep({
     ].join(" · ");
 
     return { notificationSummary, landingSummary, productSummary };
-  }, [config.displayConfig]);
+  }, [normalizedDisplayConfig]);
 
-  if (!config.displayConfig) return null;
+  if (!normalizedDisplayConfig) return null;
 
   return (
     <BlockStack gap="500">
@@ -196,11 +170,11 @@ export function DiscountedProductDisplayStep({
       <DiscountedProductCustomizerModal
         open={showCustomize}
         onClose={() => setShowCustomize(false)}
-        displayConfig={config.displayConfig}
+        displayConfig={normalizedDisplayConfig}
         onDisplayConfigChange={(newConfig) =>
           handleUpdateDisplayConfig(newConfig)
         }
-        onResetToDefaults={handleResetDefaults}
+        getDefaultDisplayConfig={getDefaultDiscountedDisplayConfig}
         products={selectedProducts}
         discount={config.discount}
       />

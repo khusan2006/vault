@@ -15,6 +15,7 @@ export {
 export { getStoreName } from "./get-store-name";
 export { computeCampaignStats } from "./compute-campaign-stats";
 export { createEmptyBenefit } from "./create-empty-benefit";
+export * from "./display-config";
 export { appendIdToken } from "./append-id-token";
 export {
   ensureWebComponents,

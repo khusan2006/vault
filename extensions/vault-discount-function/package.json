@@ -1,0 +1,11 @@
+{
+  "name": "vault-discount-function",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=neutral --format=esm --outfile=dist/index.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}

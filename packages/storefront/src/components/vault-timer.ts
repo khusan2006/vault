@@ -5,7 +5,13 @@ import styles from './vault-timer.styles';
 
 export class VaultTimer extends HTMLElement {
   static observedAttributes = [
-    'end-time', 'duration', 'style-variant', 'label', 'expired-message',
+    'end-time',
+    'duration',
+    'style-variant',
+    'label',
+    'expired-message',
+    'promo-code',
+    'promo-label',
   ];
 
   private _interval: ReturnType<typeof setInterval> | null = null;
@@ -39,6 +45,8 @@ export class VaultTimer extends HTMLElement {
     const styleVariant = this.getAttribute('style-variant') || 'urgent';
     const label = this.getAttribute('label') || 'Special offer — Hurry!';
     const expiredMessage = this.getAttribute('expired-message') || 'This offer has expired';
+    const promoCode = this.getAttribute('promo-code') || '';
+    const promoLabel = this.getAttribute('promo-label') || 'Use code';
 
     if (!this.shadowRoot) {
       this.attachShadow({ mode: 'open' });
@@ -81,12 +89,50 @@ export class VaultTimer extends HTMLElement {
         `<span class="v-timer__unit"><span class="v-timer__num">${pad(m)}</span><span class="v-timer__sep">m</span></span>` +
         `<span class="v-timer__unit"><span class="v-timer__num">${pad(s)}</span><span class="v-timer__sep">s</span></span>`;
 
+      const codeMarkup = promoCode
+        ? `
+          <div class="v-timer__code">
+            <span class="v-timer__code-label">${escapeHtml(promoLabel)}</span>
+            <button type="button" class="v-timer__code-btn" data-copy="${escapeHtml(promoCode)}">
+              ${escapeHtml(promoCode)}
+            </button>
+          </div>
+        `
+        : '';
+
       container.innerHTML = `
         <div class="v-timer__inner">
           <div class="v-timer__header">${iconClock(16, 16)}<span class="v-timer__label">${escapeHtml(label)}</span></div>
           <div class="v-timer__digits">${digits}</div>
+          ${codeMarkup}
         </div>
       `;
+
+      if (promoCode) {
+        const btn = container.querySelector('.v-timer__code-btn') as HTMLButtonElement | null;
+        if (btn) {
+          btn.addEventListener('click', () => {
+            const value = btn.getAttribute('data-copy') || '';
+            if (!value) return;
+            if (navigator.clipboard?.writeText) {
+              navigator.clipboard.writeText(value).catch(() => {
+                // fallback: select text
+                const range = document.createRange();
+                range.selectNodeContents(btn);
+                const sel = window.getSelection();
+                sel?.removeAllRanges();
+                sel?.addRange(range);
+              });
+            } else {
+              const range = document.createRange();
+              range.selectNodeContents(btn);
+              const sel = window.getSelection();
+              sel?.removeAllRanges();
+              sel?.addRange(range);
+            }
+          });
+        }
+      }
     };
 
     tick();

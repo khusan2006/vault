@@ -25,6 +25,8 @@ import {
   ThemeSectionTypographySection,
   ThemeNotificationStyleSection,
 } from "../display";
+import { useDisplayConfigDraft } from "../customizer";
+import { getThemeConfig } from "@/utils/display-config";
 import { StorefrontPreview } from "../preview/StorefrontPreview";
 import { CustomizerShell } from "../customizer/CustomizerShell";
 import { CustomizerPreviewPane } from "../customizer/CustomizerPreviewPane";
@@ -118,7 +120,7 @@ interface DisplayCustomizerModalProps {
   displayConfig: EarlyAccessDisplayConfig;
   onDisplayConfigChange: (config: EarlyAccessDisplayConfig) => void;
   approach: EarlyAccessStorefrontApproach;
-  onResetToDefaults?: () => void;
+  getDefaultDisplayConfig?: () => EarlyAccessDisplayConfig;
   products?: SelectedResource[];
 }
 
@@ -128,16 +130,16 @@ export function DisplayCustomizerModal({
   displayConfig,
   onDisplayConfigChange,
   approach,
-  onResetToDefaults,
+  getDefaultDisplayConfig,
   products,
 }: DisplayCustomizerModalProps) {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
-  const [draftConfig, setDraftConfig] =
-    useState<EarlyAccessDisplayConfig>(displayConfig);
+  const { draft: draftConfig, setDraft: setDraftConfig, isDirty, discard } =
+    useDisplayConfigDraft(open, displayConfig);
   const [panel, setPanel] =
     useState<"menu" | "notification" | "section" | "cards">("menu");
   const previewRef = useRef<HTMLDivElement>(null);
-  const themeValue = draftConfig.theme ?? { preset: "rounded", overrides: {} };
+  const themeValue = getThemeConfig(draftConfig.theme);
 
   const sectionPanelMeta = useMemo(
     () => getSectionPanelMeta(approach),
@@ -150,14 +152,10 @@ export function DisplayCustomizerModal({
 
   useEffect(() => {
     if (open) {
-      setDraftConfig(displayConfig);
       setPanel("menu");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
-
-  const hasChanges =
-    JSON.stringify(draftConfig) !== JSON.stringify(displayConfig);
 
   const handleUpdateNotification = useCallback(
     (notification: EarlyAccessDisplayConfig["notification"]) => {
@@ -183,12 +181,14 @@ export function DisplayCustomizerModal({
   }, [draftConfig, onDisplayConfigChange, onClose]);
 
   const handleDiscard = useCallback(() => {
-    setDraftConfig(displayConfig);
-  }, [displayConfig]);
+    discard();
+  }, [discard]);
 
   const handleReset = useCallback(() => {
-    onResetToDefaults?.();
-  }, [onResetToDefaults]);
+    if (!getDefaultDisplayConfig) return;
+    const defaults = getDefaultDisplayConfig();
+    setDraftConfig({ ...defaults, theme: draftConfig.theme });
+  }, [getDefaultDisplayConfig, setDraftConfig, draftConfig.theme]);
 
   return (
     <CustomizerShell
@@ -197,15 +197,15 @@ export function DisplayCustomizerModal({
       title="Customize appearance"
       primaryActionLabel="Save"
       onPrimaryAction={handleSave}
-      secondaryActionLabel={hasChanges ? "Discard" : undefined}
-      onSecondaryAction={hasChanges ? handleDiscard : undefined}
+      secondaryActionLabel={isDirty ? "Discard" : undefined}
+      onSecondaryAction={isDirty ? handleDiscard : undefined}
       sidebar={
         <BlockStack gap="500">
           <InlineStack align="space-between" blockAlign="center">
             <Text as="p" tone="subdued" variant="bodySm">
               Approach: {getApproachLabel(approach)}
             </Text>
-            {onResetToDefaults && (
+            {getDefaultDisplayConfig && (
               <Button size="slim" variant="plain" onClick={handleReset}>
                 Reset to defaults
               </Button>

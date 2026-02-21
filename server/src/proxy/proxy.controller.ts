@@ -10,6 +10,7 @@ import type { Response } from 'express';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ProxySignatureGuard } from './proxy-signature.guard.js';
 import { EvaluationService } from '../evaluation/evaluation.service.js';
+import { TimerSaleCodesService } from '../discounts/timer-sale-codes.service.js';
 
 @Controller('api/proxy')
 @UseGuards(ProxySignatureGuard)
@@ -19,6 +20,7 @@ export class ProxyController {
 
   constructor(
     private readonly evaluationService: EvaluationService,
+    private readonly timerSaleCodesService: TimerSaleCodesService,
   ) {}
 
   // ---------------------------------------------------------------------------
@@ -50,6 +52,35 @@ export class ProxyController {
         error,
       );
       return { benefits: [] };
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Timer sale discount code
+  // ---------------------------------------------------------------------------
+
+  @Get('timer-sale-code')
+  async getTimerSaleCode(
+    @Query('shop') shop: string,
+    @Query('logged_in_customer_id') customerId: string,
+    @Query('campaignId') campaignId: string,
+  ) {
+    if (!customerId || !campaignId) {
+      return { status: 'not_configured', code: null, expiresAt: null };
+    }
+
+    try {
+      return await this.timerSaleCodesService.getOrCreateTimerSaleCode(
+        shop,
+        customerId,
+        campaignId,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to get timer sale code for ${customerId} on ${shop}`,
+        error,
+      );
+      return { status: 'error', code: null, expiresAt: null };
     }
   }
 
