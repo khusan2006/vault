@@ -8,7 +8,7 @@ import type {
   ThemeConfig,
   TimerDisplayConfig,
 } from "@/types";
-import type { SelectedResource } from "@/hooks/useResourcePicker";
+import type { SelectedResource } from "@/features/campaigns/hooks/useResourcePicker";
 
 export interface PreviewProduct {
   id: string;

@@ -9,7 +9,7 @@ import {
   BlockStack,
   SkeletonDisplayText,
 } from "@shopify/polaris";
-import { DiscountedProductWizard } from "@/components/campaigns/discounted-product-wizard/DiscountedProductWizard";
+import { DiscountedProductWizard } from "@/features/campaigns/components/discounted-product-wizard/DiscountedProductWizard";
 
 export default function NewDiscountedProductCampaignPage() {
   return (

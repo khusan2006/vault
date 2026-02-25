@@ -9,7 +9,7 @@ import {
   SkeletonDisplayText,
   BlockStack,
 } from "@shopify/polaris";
-import { CampaignCreationWizard } from "@/components/campaigns/wizard";
+import { CampaignCreationWizard } from "@/features/campaigns/components/wizard";
 
 export default function NewCampaignPage() {
   return (

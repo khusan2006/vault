@@ -1,5 +1,5 @@
 import type { Campaign, CampaignConfig } from "@/types";
-import type { SelectedResource } from "@/hooks/useResourcePicker";
+import type { SelectedResource } from "@/features/campaigns/hooks/useResourcePicker";
 
 export function inferResourceLabel(id: string, prefix: string) {
   const parts = id.split("/");

@@ -9,7 +9,7 @@ import {
   BlockStack,
   SkeletonDisplayText,
 } from "@shopify/polaris";
-import { TimerSaleWizard } from "@/components/campaigns/timer-sale-wizard/TimerSaleWizard";
+import { TimerSaleWizard } from "@/features/campaigns/components/timer-sale-wizard/TimerSaleWizard";
 
 export default function NewTimerSaleCampaignPage() {
   return (

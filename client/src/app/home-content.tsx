@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
-import { useIdTokenNavigation } from "@/hooks/useIdTokenNavigation";
+import { useCallback, useMemo } from "react";
+import { useIdTokenNavigation } from "@/shared/hooks/useIdTokenNavigation";
 import {
   Page,
   Layout,
@@ -10,7 +10,7 @@ import {
   Spinner,
   InlineStack,
 } from "@shopify/polaris";
-import { useDashboard } from "@/hooks/useDashboard";
+import { useDashboard } from "@/features/dashboard/hooks/useDashboard";
 import type { Campaign, SetupStatus } from "@/types";
 import {
   SetupGuide,
@@ -18,9 +18,9 @@ import {
   FeatureCards,
   RecentCampaigns,
   ResourcesSection,
+  OverviewSection,
   buildSetupTasks,
-} from "@/components/home";
-import { OverviewSection } from "@/components/home/OverviewSection";
+} from "@/features/dashboard/components";
 
 interface HomeContentProps {
   initialCampaigns: Campaign[] | null;
@@ -55,14 +55,21 @@ export function HomeContent({
     [push],
   );
 
-  const tasks = buildSetupTasks(setupStatus, refreshEmbedStatus);
-  const completedTasks = tasks.filter((t) => t.completed).length;
-  const allTasksCompleted =
-    completedTasks === tasks.length && tasks.length > 0;
-  const showGuide = !allTasksCompleted && !guideDismissed;
+  const tasks = useMemo(
+    () => buildSetupTasks(setupStatus, refreshEmbedStatus),
+    [setupStatus, refreshEmbedStatus],
+  );
+  const { showGuide, pageTitle, pageSubtitle } = useMemo(() => {
+    const completedTasks = tasks.filter((t) => t.completed).length;
+    const allTasksCompleted =
+      completedTasks === tasks.length && tasks.length > 0;
 
-  const pageTitle = storeName ? `Hi, ${storeName}!` : "Home";
-  const pageSubtitle = storeName ? "Welcome to The Vault" : undefined;
+    return {
+      showGuide: !allTasksCompleted && !guideDismissed,
+      pageTitle: storeName ? `Hi, ${storeName}!` : "Home",
+      pageSubtitle: storeName ? "Welcome to The Vault" : undefined,
+    };
+  }, [tasks, guideDismissed, storeName]);
 
   if (loading) {
     return (

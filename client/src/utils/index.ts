@@ -5,7 +5,7 @@ export {
   summarizeConfig,
   CAMPAIGN_TYPE_LABELS,
   CAMPAIGN_TYPE_DESCRIPTIONS,
-} from "./campaign-helpers";
+} from "@/features/campaigns/utils";
 export { getCampaignItemCount, getCampaignScheduleDisplay } from "./campaign-metadata";
 export {
   inferResourceLabel,

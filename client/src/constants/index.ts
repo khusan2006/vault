@@ -36,3 +36,20 @@ export const CAMPAIGN_STATUS_OPTIONS = [
   { label: "Paused", value: "paused" },
   { label: "Archived", value: "archived" },
 ] as const;
+
+export const CAMPAIGN_STATUS_OPTIONS_NO_ARCHIVED = [
+  { label: "Draft", value: "draft" },
+  { label: "Active", value: "active" },
+  { label: "Paused", value: "paused" },
+] as const;
+
+export const CAMPAIGN_STATUS_REVIEW_OPTIONS = [
+  { label: "Draft — save now, activate later", value: "draft" },
+  { label: "Active — go live immediately", value: "active" },
+  { label: "Paused", value: "paused" },
+] as const;
+
+export const EARLY_ACCESS_REVIEW_STATUS_OPTIONS = [
+  { label: "Draft — save now, activate later", value: "draft" },
+  { label: "Active — go live immediately", value: "active" },
+] as const;

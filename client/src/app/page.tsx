@@ -18,7 +18,6 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       serverFetch<CampaignListResponse>(API_ENDPOINTS.CAMPAIGNS, idToken),
       serverFetch<SetupStatus>(API_ENDPOINTS.SETUP_STATUS, idToken),
     ]);
-    console.log("Fetch results", { campaignsResult, setupResult });
     if (campaignsResult.status === "fulfilled") {
       initialCampaigns = campaignsResult.value.campaigns;
     }

@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useState } from "react";
 import {
   Page,
   Layout,
@@ -24,24 +23,20 @@ import {
   Badge,
 } from "@shopify/polaris";
 import { PlusIcon, SearchIcon } from "@shopify/polaris-icons";
-import type { Campaign, CampaignStatus } from "@/types";
-import { campaignsApi } from "@/lib/api";
-import { useToast } from "@/hooks/useToast";
-import { useIdTokenNavigation } from "@/hooks/useIdTokenNavigation";
-import { StatusBadge } from "@/components/shared";
+import type { Campaign } from "@/types";
+import { useToast } from "@/shared/hooks/useToast";
+import { useIdTokenNavigation } from "@/shared/hooks/useIdTokenNavigation";
+import {
+  CAMPAIGN_TAB_IDS,
+  useCampaignsList,
+} from "@/features/campaigns/hooks/useCampaignsList";
+import { StatusBadge } from "@/shared/components";
 import {
   formatDate,
   summarizeBenefits,
   CAMPAIGN_TYPE_LABELS,
 } from "@/utils";
 
-// =============================================================================
-// Constants
-// =============================================================================
-
-type TabStatus = "all" | CampaignStatus;
-
-const TAB_IDS: TabStatus[] = ["all", "active", "draft", "paused", "archived"];
 const SKELETON_ROWS = Array.from({ length: 6 }, (_, index) => index);
 
 // =============================================================================
@@ -58,100 +53,36 @@ interface CampaignsListProps {
 
 export function CampaignsList({ initialCampaigns }: CampaignsListProps) {
   const { push } = useIdTokenNavigation();
-  const searchParams = useSearchParams();
-  const [allCampaigns, setAllCampaigns] = useState<Campaign[]>(
-    initialCampaigns ?? [],
-  );
-  const [loading, setLoading] = useState(initialCampaigns === null);
-  const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const { show: showToast } = useToast();
 
-  // Determine initial tab from URL params
-  const initialStatus = searchParams.get("status") as TabStatus | null;
-  const [selectedTab, setSelectedTab] = useState<number>(
-    initialStatus ? TAB_IDS.indexOf(initialStatus) : 0,
-  );
-
-  useEffect(() => {
-    if (initialCampaigns === null) {
-      campaignsApi
-        .list()
-        .then((response) => setAllCampaigns(response.campaigns))
-        .catch((err) =>
-          setError(
-            err instanceof Error ? err.message : "Failed to load campaigns",
-          ),
-        )
-        .finally(() => setLoading(false));
-    }
-  }, [initialCampaigns]);
-
-  // --- Derived data ---
-
-  const tabCounts = useMemo(() => {
-    const counts: Record<TabStatus, number> = {
-      all: allCampaigns.length,
-      active: 0,
-      draft: 0,
-      paused: 0,
-      archived: 0,
-    };
-    for (const c of allCampaigns) {
-      counts[c.status]++;
-    }
-    return counts;
-  }, [allCampaigns]);
-
-  const filteredCampaigns = useMemo(() => {
-    const tabStatus = TAB_IDS[selectedTab];
-    let filtered = allCampaigns;
-
-    if (tabStatus !== "all") {
-      filtered = filtered.filter((c) => c.status === tabStatus);
-    }
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter((c) =>
-        c.name.toLowerCase().includes(query),
-      );
-    }
-
-    return filtered;
-  }, [allCampaigns, selectedTab, searchQuery]);
+  const {
+    allCampaigns,
+    filteredCampaigns,
+    loading,
+    error,
+    searchQuery,
+    selectedTab,
+    tabCounts,
+    setError,
+    setSearchQuery,
+    setSelectedTab,
+    deleteCampaigns,
+  } = useCampaignsList(initialCampaigns);
 
   const resourceName = { singular: "campaign", plural: "campaigns" };
 
   const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(
-      filteredCampaigns as unknown as { [key: string]: unknown }[],
-    );
+    useIndexResourceState<Campaign>(filteredCampaigns);
 
   // --- Handlers ---
-
-  const refreshCampaigns = useCallback(async () => {
-    try {
-      setError(null);
-      const response = await campaignsApi.list();
-      setAllCampaigns(response.campaigns);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load campaigns",
-      );
-    }
-  }, []);
 
   const handleBulkDelete = useCallback(async () => {
     if (selectedResources.length === 0) return;
 
     try {
       const count = selectedResources.length;
-      await Promise.all(
-        selectedResources.map((id) => campaignsApi.delete(id)),
-      );
-      await refreshCampaigns();
+      await deleteCampaigns(selectedResources);
       setDeleteModalOpen(false);
       showToast(`Deleted ${count} campaign${count > 1 ? "s" : ""}`);
     } catch (err) {
@@ -160,11 +91,11 @@ export function CampaignsList({ initialCampaigns }: CampaignsListProps) {
       );
       setDeleteModalOpen(false);
     }
-  }, [selectedResources, refreshCampaigns, showToast]);
+  }, [selectedResources, deleteCampaigns, showToast, setError]);
 
   // --- Tab config ---
 
-  const tabs = TAB_IDS.map((id) => ({
+  const tabs = CAMPAIGN_TAB_IDS.map((id) => ({
     id,
     content: `${id.charAt(0).toUpperCase() + id.slice(1)}${tabCounts[id] > 0 ? ` (${tabCounts[id]})` : ""}`,
     accessibilityLabel: `${id} campaigns`,
@@ -292,7 +223,7 @@ export function CampaignsList({ initialCampaigns }: CampaignsListProps) {
                   <BlockStack gap="300">
                     <SkeletonDisplayText size="small" />
                     <InlineStack gap="200" wrap>
-                      {TAB_IDS.map((id) => (
+                      {CAMPAIGN_TAB_IDS.map((id) => (
                         <div
                           key={id}
                           className="min-w-[72px] rounded-[var(--p-border-radius-200)] bg-[var(--p-color-bg-surface-secondary)] p-[var(--p-space-100)]"

@@ -9,7 +9,7 @@ import {
   BlockStack,
   SkeletonDisplayText,
 } from "@shopify/polaris";
-import { EarlyAccessWizard } from "@/components/campaigns/early-access-wizard";
+import { EarlyAccessWizard } from "@/features/campaigns/components/early-access-wizard";
 
 export default function NewEarlyAccessCampaignPage() {
   return (
